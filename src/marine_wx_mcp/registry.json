@@ -1,0 +1,68 @@
+{
+  "regions": {
+    "lake_michigan_west": {
+      "timezone": "America/Chicago",
+      "nws_offices": ["MKX", "LOT"],
+      "zone_offices": {
+        "LMZ643": "MKX",
+        "LMZ644": "MKX",
+        "LMZ645": "MKX",
+        "LMZ646": "MKX",
+        "LMZ740": "LOT",
+        "LMZ741": "LOT"
+      },
+      "ports": {
+        "waukegan": {
+          "lat": 42.360,
+          "lon": -87.813,
+          "zones": ["LMZ740"],
+          "stations": ["WHRI2", "45186"],
+          "notes": "Home port. Waukegan Harbor & Marina 847-244-3133. Station 45186 (Waukegan Buoy) replaces 45007, which is not in NDBC's active station list as of 2026-07 - V-2."
+        },
+        "north_point": {
+          "lat": 42.479,
+          "lon": -87.803,
+          "zones": ["LMZ646", "LMZ740"],
+          "stations": ["WHRI2", "45187"],
+          "notes": "Winthrop Harbor bail-out; boundary Waukegan/Kenosha legs. Station 45187 (Winthrop Harbor Buoy) added - V-2."
+        },
+        "kenosha": {
+          "lat": 42.588,
+          "lon": -87.808,
+          "zones": ["LMZ646"],
+          "stations": ["45199"],
+          "notes": "Southport Marina 262-657-5565; office closed Sun/Mon. KNSW3 (Kenosha Light) is registered with NDBC but does not report meteorological data (met=n, no realtime2 feed); 45199 (Salmon Unlimited WI buoy, ~9nm N near Racine) is the nearest reporting station - V-2."
+        },
+        "racine": {
+          "lat": 42.730,
+          "lon": -87.776,
+          "zones": ["LMZ646"],
+          "stations": ["45199", "MLWW3"],
+          "notes": "Reefpoint Marina 262-633-7171; Wind Point Light just north. 45199 (Salmon Unlimited WI buoy) replaces non-reporting KNSW3 - V-2."
+        },
+        "milwaukee": {
+          "lat": 43.036,
+          "lon": -87.895,
+          "zones": ["LMZ645"],
+          "stations": ["MLWW3", "45013"],
+          "notes": "Lakeshore State Park Marina (no water/showers; elec incl; dockmaster 414-274-4281) / McKinley Marina (full service, fuel). 45013 (Atwater Park buoy) replaces 45007, which is not in NDBC's active station list as of 2026-07 - V-2."
+        },
+        "chicago": {
+          "lat": 41.886,
+          "lon": -87.612,
+          "zones": ["LMZ741"],
+          "stations": ["CNII2", "CHII2"],
+          "notes": "DuSable Harbor, transient via Dockwa. CNII2 (Northerly Isle, ~2nm) and CHII2 (Harrison-Dever Crib) both confirmed reporting - V-2. NDBC station IDs are case-sensitive in the realtime2 URL; must be uppercase."
+        }
+      },
+      "routes": {
+        "waukegan_kenosha": {"legs": ["waukegan", "north_point", "kenosha"], "nm": 12},
+        "kenosha_racine": {"legs": ["kenosha", "racine"], "nm": 9},
+        "racine_waukegan": {"legs": ["racine", "kenosha", "north_point", "waukegan"], "nm": 21},
+        "kenosha_milwaukee": {"legs": ["kenosha", "racine", "milwaukee"], "nm": 30},
+        "milwaukee_waukegan": {"legs": ["milwaukee", "racine", "kenosha", "north_point", "waukegan"], "nm": 40},
+        "waukegan_chicago": {"legs": ["waukegan", "chicago"], "nm": 33}
+      }
+    }
+  }
+}

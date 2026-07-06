@@ -1,0 +1,4 @@
+#YY  MM DD hh mm WDIR WSPD GST   PRES  ATMP  DEWP  VIS PTDY
+#yr  mo dy hr mn degT m/s  m/s    hPa  degC  degC  nmi  hPa
+2026 07 06 15 00 350  5.7  6.2 1015.2  22.1    MM   MM   MM
+2026 07 06 14 50 350  4.6  6.2 1015.0  22.0    MM   MM   MM

@@ -1,0 +1,773 @@
+{
+    "@context": {
+        "@version": "1.1",
+        "@vocab": "https://api.weather.gov/ontology#"
+    },
+    "@graph": [
+        {
+            "@id": "https://api.weather.gov/products/084ccb0b-8107-41b4-8fde-57baecb6aa4a",
+            "id": "084ccb0b-8107-41b4-8fde-57baecb6aa4a",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-06T16:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/15f2689b-cc51-4521-bdab-3eac07ddd4a6",
+            "id": "15f2689b-cc51-4521-bdab-3eac07ddd4a6",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-06T14:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/a50ede5d-537a-40ad-a084-3c2a5af149af",
+            "id": "a50ede5d-537a-40ad-a084-3c2a5af149af",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-06T12:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/3072ffb2-9057-4e10-bfa0-7e903833a70d",
+            "id": "3072ffb2-9057-4e10-bfa0-7e903833a70d",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-06T10:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/b7989f83-47ad-4302-adbb-b0910c661bdd",
+            "id": "b7989f83-47ad-4302-adbb-b0910c661bdd",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-06T08:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/9039aed6-95f3-43fc-9919-03e4f66d27a2",
+            "id": "9039aed6-95f3-43fc-9919-03e4f66d27a2",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-06T06:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/1e943053-cedc-45ca-bf34-b3e4f84b9db0",
+            "id": "1e943053-cedc-45ca-bf34-b3e4f84b9db0",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-06T04:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/3d60b88b-e18d-4608-8cb8-5979a1790168",
+            "id": "3d60b88b-e18d-4608-8cb8-5979a1790168",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-06T02:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/a15ce2c8-88e2-4793-8af0-180c1fefe225",
+            "id": "a15ce2c8-88e2-4793-8af0-180c1fefe225",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-06T00:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/77d3c60b-3fb4-4411-90dc-2b7129c478ed",
+            "id": "77d3c60b-3fb4-4411-90dc-2b7129c478ed",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-05T22:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/83b061e4-5a30-41d4-83be-d777101603c2",
+            "id": "83b061e4-5a30-41d4-83be-d777101603c2",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-05T20:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/ee218fd1-68ba-496f-946b-bf8c4afdaefc",
+            "id": "ee218fd1-68ba-496f-946b-bf8c4afdaefc",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-05T18:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/dda15d48-747d-4f8c-974e-a88ec1fa5f18",
+            "id": "dda15d48-747d-4f8c-974e-a88ec1fa5f18",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-05T16:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/7ad97785-12bc-4712-bfad-e096a9032715",
+            "id": "7ad97785-12bc-4712-bfad-e096a9032715",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-05T14:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/3d838206-7c32-451b-a101-db21cf17b1e1",
+            "id": "3d838206-7c32-451b-a101-db21cf17b1e1",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-05T12:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/5c33edb9-8f10-43af-80e8-676a2f0a4a66",
+            "id": "5c33edb9-8f10-43af-80e8-676a2f0a4a66",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-05T10:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/934daa5a-234b-4663-9688-fcbc6cb69ac5",
+            "id": "934daa5a-234b-4663-9688-fcbc6cb69ac5",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-05T08:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/45c1a7a3-bb58-49f3-a271-7278e1187035",
+            "id": "45c1a7a3-bb58-49f3-a271-7278e1187035",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-05T06:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/2680c2fb-cefe-4753-ab85-189a18a61d5f",
+            "id": "2680c2fb-cefe-4753-ab85-189a18a61d5f",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-05T04:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/35c4ca38-acf6-4b00-b2b3-807aae4ace2a",
+            "id": "35c4ca38-acf6-4b00-b2b3-807aae4ace2a",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-05T02:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/152b6b27-b845-487f-8f8f-f70708a5a53c",
+            "id": "152b6b27-b845-487f-8f8f-f70708a5a53c",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-05T00:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/b6db4244-f9f6-4d3a-875b-a9179035554b",
+            "id": "b6db4244-f9f6-4d3a-875b-a9179035554b",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-04T22:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/5a3e94bc-c137-4521-ae92-b70a88593ce8",
+            "id": "5a3e94bc-c137-4521-ae92-b70a88593ce8",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-04T20:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/9d5dfaa6-9d93-4b67-8093-753775e331c8",
+            "id": "9d5dfaa6-9d93-4b67-8093-753775e331c8",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-04T18:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/3fbafc58-22aa-4b46-b3af-352f186dbfb5",
+            "id": "3fbafc58-22aa-4b46-b3af-352f186dbfb5",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-04T16:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/c6a42891-f0c1-4c93-aad8-0438fdb9a762",
+            "id": "c6a42891-f0c1-4c93-aad8-0438fdb9a762",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-04T14:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/60f7b8ce-da82-4bb9-8cf6-88c4f6566166",
+            "id": "60f7b8ce-da82-4bb9-8cf6-88c4f6566166",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-04T12:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/d1e8998a-16d2-4432-b1d1-ef743efa1b76",
+            "id": "d1e8998a-16d2-4432-b1d1-ef743efa1b76",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-04T10:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/99d76307-9be7-439a-9292-0ae399aa480a",
+            "id": "99d76307-9be7-439a-9292-0ae399aa480a",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-04T08:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/1ac478ff-303e-4cb5-ad77-d03665e5768e",
+            "id": "1ac478ff-303e-4cb5-ad77-d03665e5768e",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-04T06:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/cd008197-dd23-42f0-b507-fca49f74664a",
+            "id": "cd008197-dd23-42f0-b507-fca49f74664a",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-04T04:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/c622a340-0409-46a8-b6e8-91dddd938303",
+            "id": "c622a340-0409-46a8-b6e8-91dddd938303",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-04T02:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/dcfcb76b-1fe8-4864-ab83-38ba2f60c677",
+            "id": "dcfcb76b-1fe8-4864-ab83-38ba2f60c677",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-04T00:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/5ffec60c-cffb-4d77-a951-33b5f78dae78",
+            "id": "5ffec60c-cffb-4d77-a951-33b5f78dae78",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-03T22:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/b7214193-daa7-4689-a985-722d82e752f2",
+            "id": "b7214193-daa7-4689-a985-722d82e752f2",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-03T20:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/d234d3dc-8274-4000-8761-33c1d733c53b",
+            "id": "d234d3dc-8274-4000-8761-33c1d733c53b",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-03T18:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/bb1642e5-a49d-42eb-8818-18fc52913da7",
+            "id": "bb1642e5-a49d-42eb-8818-18fc52913da7",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-03T16:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/5ef6f313-e741-4d52-8ed0-88987425bd44",
+            "id": "5ef6f313-e741-4d52-8ed0-88987425bd44",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-03T14:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/eecb685b-b626-4344-b7a1-7a2ba0b7dd5b",
+            "id": "eecb685b-b626-4344-b7a1-7a2ba0b7dd5b",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-03T12:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/53ad36e7-1724-445e-ae22-e6937db83809",
+            "id": "53ad36e7-1724-445e-ae22-e6937db83809",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-03T10:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/d3d0b0ec-5b85-4ca6-9439-e9dba25d1946",
+            "id": "d3d0b0ec-5b85-4ca6-9439-e9dba25d1946",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-03T08:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/54c60f4e-5ec2-4afb-a0fa-a6c35640aa3e",
+            "id": "54c60f4e-5ec2-4afb-a0fa-a6c35640aa3e",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-03T06:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/f884deb0-ed54-449b-b052-e17c62567db8",
+            "id": "f884deb0-ed54-449b-b052-e17c62567db8",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-03T04:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/40f8e256-d017-435a-b9a3-a00508e568e0",
+            "id": "40f8e256-d017-435a-b9a3-a00508e568e0",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-03T02:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/23fd46b3-0f93-495a-9a8c-21602487884c",
+            "id": "23fd46b3-0f93-495a-9a8c-21602487884c",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-03T00:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/d32d63cf-6020-45be-9c75-8996c79831b4",
+            "id": "d32d63cf-6020-45be-9c75-8996c79831b4",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-02T22:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/b3ec5dcf-91a1-44b4-912f-b4ad230ebdb2",
+            "id": "b3ec5dcf-91a1-44b4-912f-b4ad230ebdb2",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-02T20:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/f0f78a70-23f8-4cfc-b81c-bc9786ebc901",
+            "id": "f0f78a70-23f8-4cfc-b81c-bc9786ebc901",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-02T18:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/0ff743d6-d874-427f-b4c2-24b878176c5e",
+            "id": "0ff743d6-d874-427f-b4c2-24b878176c5e",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-02T16:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/59ad9a68-e5c7-450b-a9e8-aef423806662",
+            "id": "59ad9a68-e5c7-450b-a9e8-aef423806662",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-02T14:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/ae4f56a6-84ac-4f8a-9d4e-571833010026",
+            "id": "ae4f56a6-84ac-4f8a-9d4e-571833010026",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-02T12:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/6c773a34-83cf-4373-916e-bf6afe2620af",
+            "id": "6c773a34-83cf-4373-916e-bf6afe2620af",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-02T10:11:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/5a27fddd-8af9-4584-b9ef-b79402513e0c",
+            "id": "5a27fddd-8af9-4584-b9ef-b79402513e0c",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-02T08:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/e3b576e1-a369-4570-8a15-10e375bdc85e",
+            "id": "e3b576e1-a369-4570-8a15-10e375bdc85e",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-02T06:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/86f9e937-2223-446d-958e-bef6be662bee",
+            "id": "86f9e937-2223-446d-958e-bef6be662bee",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-02T04:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/a834bde5-2543-4947-9546-35b0610b71cd",
+            "id": "a834bde5-2543-4947-9546-35b0610b71cd",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-02T02:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/59268408-f7b0-476b-800b-65348ac38181",
+            "id": "59268408-f7b0-476b-800b-65348ac38181",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-02T00:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/282d0cf9-3271-4d1a-942b-61c7a110ec65",
+            "id": "282d0cf9-3271-4d1a-942b-61c7a110ec65",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-01T22:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/3c8225bf-4051-4e2f-8258-75c5ea2981b2",
+            "id": "3c8225bf-4051-4e2f-8258-75c5ea2981b2",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-01T20:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/1374a653-2ff8-41bd-a5bf-a9ee65ed287f",
+            "id": "1374a653-2ff8-41bd-a5bf-a9ee65ed287f",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-01T18:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/efb0ec37-07e1-4fda-858a-39bc593a10b3",
+            "id": "efb0ec37-07e1-4fda-858a-39bc593a10b3",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-01T16:11:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/449ae184-0f1b-4e75-9bed-4000683da13a",
+            "id": "449ae184-0f1b-4e75-9bed-4000683da13a",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-01T14:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/40b61708-a82e-4237-9f32-93ebdc570cf2",
+            "id": "40b61708-a82e-4237-9f32-93ebdc570cf2",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-01T12:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/047db6cd-20d5-41f7-b245-094ffdec71bb",
+            "id": "047db6cd-20d5-41f7-b245-094ffdec71bb",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-01T10:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/fd45bcbe-c882-49f0-85ee-681b9de244fb",
+            "id": "fd45bcbe-c882-49f0-85ee-681b9de244fb",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-01T08:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/9924a86d-7ff0-46d1-a1dc-2ac3856c0477",
+            "id": "9924a86d-7ff0-46d1-a1dc-2ac3856c0477",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-01T06:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/8be5cae0-8a70-478c-a63a-4f1f1c08cec0",
+            "id": "8be5cae0-8a70-478c-a63a-4f1f1c08cec0",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-01T04:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/bf0eab50-4c83-450d-93bc-2c2a221877ed",
+            "id": "bf0eab50-4c83-450d-93bc-2c2a221877ed",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-01T02:11:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/fd03b76d-0df1-4a35-9eb4-921ddf27368a",
+            "id": "fd03b76d-0df1-4a35-9eb4-921ddf27368a",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-01T02:07:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/eb9626fb-6949-483a-9745-8be43dbed576",
+            "id": "eb9626fb-6949-483a-9745-8be43dbed576",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-07-01T00:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/02f92628-385c-45ec-8df4-0003e993342f",
+            "id": "02f92628-385c-45ec-8df4-0003e993342f",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-06-30T22:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/31026e63-fc63-486b-b79c-9578c69b1619",
+            "id": "31026e63-fc63-486b-b79c-9578c69b1619",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-06-30T20:11:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/ec00d344-340b-473c-8379-e958cf862136",
+            "id": "ec00d344-340b-473c-8379-e958cf862136",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-06-30T18:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/daa393e2-2487-4a0e-a6a3-013e03ab4c29",
+            "id": "daa393e2-2487-4a0e-a6a3-013e03ab4c29",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-06-30T16:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/43153cc4-6679-41fc-b870-36622478ec78",
+            "id": "43153cc4-6679-41fc-b870-36622478ec78",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-06-30T14:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/79b7cbde-1a0b-4c24-9548-639954bb8369",
+            "id": "79b7cbde-1a0b-4c24-9548-639954bb8369",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-06-30T12:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/d3cc03d5-6954-4557-a73d-2d9288dcf160",
+            "id": "d3cc03d5-6954-4557-a73d-2d9288dcf160",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-06-30T10:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/d868e508-8322-482d-805d-1de349584f74",
+            "id": "d868e508-8322-482d-805d-1de349584f74",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-06-30T08:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/b4395f1a-a7ae-411f-a35d-80427f81eb19",
+            "id": "b4395f1a-a7ae-411f-a35d-80427f81eb19",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-06-30T06:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/6a6a62ef-4fd8-4707-9235-157af585c88e",
+            "id": "6a6a62ef-4fd8-4707-9235-157af585c88e",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-06-30T04:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/a170ea5c-0073-44e4-b950-daca3f844e7b",
+            "id": "a170ea5c-0073-44e4-b950-daca3f844e7b",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-06-30T02:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/ec0e67f3-b9f8-46df-b15a-fb6853283acf",
+            "id": "ec0e67f3-b9f8-46df-b15a-fb6853283acf",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-06-30T00:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/86532753-99a4-4c0b-93ae-a9b5316cc989",
+            "id": "86532753-99a4-4c0b-93ae-a9b5316cc989",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-06-29T22:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/0e47e060-be8b-4144-81a8-b2c087f13276",
+            "id": "0e47e060-be8b-4144-81a8-b2c087f13276",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-06-29T20:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        },
+        {
+            "@id": "https://api.weather.gov/products/2960db70-33b8-4567-b478-42a521043f41",
+            "id": "2960db70-33b8-4567-b478-42a521043f41",
+            "wmoCollectiveId": "FZUS53",
+            "issuingOffice": "KMKX",
+            "issuanceTime": "2026-06-29T18:10:00+00:00",
+            "productCode": "NSH",
+            "productName": "Nearshore Marine Forecast"
+        }
+    ]
+}

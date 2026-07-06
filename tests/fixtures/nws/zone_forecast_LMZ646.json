@@ -1,0 +1,8 @@
+{
+    "correlationId": "36c5a974",
+    "title": "Marine Forecast Not Supported",
+    "type": "https://api.weather.gov/problems/MarineForecastNotSupported",
+    "status": 404,
+    "detail": "Forecasts for marine areas are not yet supported by this API.",
+    "instance": "https://api.weather.gov/requests/36c5a974"
+}
