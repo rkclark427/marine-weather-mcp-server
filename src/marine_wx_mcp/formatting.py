@@ -179,3 +179,28 @@ def format_registry(regions: dict[str, Any]) -> str:
         for name, route in region["routes"].items():
             lines.append(f"- `{name}`: {' -> '.join(route['legs'])} ({route['nm']} nm)")
     return "\n".join(lines)
+
+
+_SUN_EVENT_ORDER = [
+    "Begin Civil Twilight",
+    "Rise",
+    "Upper Transit",
+    "Set",
+    "End Civil Twilight",
+]
+
+
+def format_sun_times(place_or_coords: str, result: dict[str, Any]) -> str:
+    events = result["events"]
+    if not events:
+        return f"No sun/twilight data returned for {place_or_coords} on {result['date']}."
+
+    lines = [f"## Sun & civil twilight - {place_or_coords} ({result['date']})\n"]
+    for phen in _SUN_EVENT_ORDER:
+        if phen in events:
+            lines.append(f"- **{phen}:** {to_local(events[phen])}")
+    lines.append(
+        "\n*Civil twilight only - not nautical or astronomical twilight; "
+        "not suitable for celestial navigation sight timing.*"
+    )
+    return "\n".join(lines)

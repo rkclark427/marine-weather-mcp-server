@@ -8,6 +8,7 @@ exceptions into actionable string results instead of crashes.
 
 from __future__ import annotations
 
+from datetime import date as date_cls
 from datetime import datetime
 from typing import Literal
 
@@ -15,10 +16,11 @@ from mcp.server.fastmcp import FastMCP
 
 from marine_wx_mcp import formatting, registry
 from marine_wx_mcp.registry import RegistryError
-from marine_wx_mcp.sources import ndbc, nws, openmeteo, windy
+from marine_wx_mcp.sources import ndbc, nws, openmeteo, usno, windy
 from marine_wx_mcp.sources.ndbc import NDBCError
 from marine_wx_mcp.sources.nws import NWSError
 from marine_wx_mcp.sources.openmeteo import OpenMeteoError
+from marine_wx_mcp.sources.usno import USNOError
 
 mcp = FastMCP("marine_wx_mcp")
 
@@ -206,6 +208,44 @@ async def marine_get_model_forecast(
     else:
         md += f"\n\n*{marine['no_data_message']}*"
     return md
+
+
+@mcp.tool()
+async def marine_get_sun_times(
+    lat: float | None = None,
+    lon: float | None = None,
+    place: str | None = None,
+    date: str | None = None,
+    response_format: ResponseFormat = "markdown",
+) -> str | dict:
+    """Sunrise/solar transit/sunset and civil twilight begin/end for one day.
+
+    Source (USNO) only provides civil twilight, not nautical or
+    astronomical - fine for harbor-approach visibility planning, not for
+    celestial navigation sight timing. `date` defaults to today
+    (America/Chicago) if omitted; pass an ISO date (YYYY-MM-DD) otherwise.
+    """
+    try:
+        lat_r, lon_r, label = _resolve_coords(lat, lon, place)
+    except RegistryError as exc:
+        return str(exc)
+
+    if date:
+        try:
+            when = date_cls.fromisoformat(date)
+        except ValueError:
+            return f"Invalid date '{date}' - use ISO format (YYYY-MM-DD)."
+    else:
+        when = datetime.now(formatting.LOCAL_TZ).date()
+
+    try:
+        result = await usno.get_sun_times(lat_r, lon_r, when)
+    except USNOError as exc:
+        return str(exc)
+
+    if response_format == "json":
+        return {"location": label, **result}
+    return formatting.format_sun_times(label, result)
 
 
 @mcp.tool()

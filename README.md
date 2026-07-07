@@ -66,6 +66,7 @@ verification status. Quick summary:
 - `marine_get_point_forecast` - NWS gridpoint hourly forecast for a coordinate/place
 - `marine_get_forecast_discussion` - latest Area Forecast Discussion (.MARINE section)
 - `marine_get_model_forecast` - Open-Meteo ECMWF vs GFS wind comparison
+- `marine_get_sun_times` - sunrise/transit/sunset + civil twilight for a coordinate/place/date
 - `marine_list_registry` - dump known ports/zones/stations/routes
 - `marine_get_windy_forecast` - Windy Point Forecast (v2 roadmap, inert without a key)
 

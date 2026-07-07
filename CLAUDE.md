@@ -77,8 +77,23 @@ All live-verified 2026-07-06. Fixtures captured in `tests/fixtures/`.
   after any change to `server.py`'s tool signatures.
 - **R-1 (GLCFS/GLERL)**: not investigated - v2 roadmap item, no action
   taken.
+- **V-6 (USNO sun/twilight, added 2026-07-06)**: CONFIRMED endpoint works
+  and needs no key, but the `tz`/`dst` params have a non-obvious contract
+  - see the gotcha below. `sundata` only carries civil twilight (no
+  nautical/astronomical), confirmed live and matches the tool's
+  documented caveat.
 
 ## Other gotchas worth knowing before editing sources/
+
+- **USNO `rstt/oneday` `tz` param is the STANDARD (non-DST) UTC offset**,
+  and `dst=true` adds the daylight hour on top - passing the already-DST
+  offset (e.g. `tz=-5` for Chicago in July) with `dst=true` silently
+  computes UTC-4, an hour wrong. Confirmed by diffing against the
+  tz-less (UTC) response for the same date/coords. `usno._std_offset_and_dst`
+  derives both the standard offset and whether DST applies from
+  `zoneinfo` for the requested date, rather than hardcoding either -
+  don't replace that with a fixed offset even though this project only
+  serves one timezone today.
 
 - **NWS gridpoint interval values** (`waveHeight`, `wavePeriod`, etc.) use
   RFC 3339 duration `validTime` strings like
@@ -111,6 +126,7 @@ src/marine_wx_mcp/
     nws.py        - api.weather.gov (alerts, gridpoints, NSH, AFD)
     ndbc.py       - NDBC realtime2 fetch + parser
     openmeteo.py  - Open-Meteo forecast + marine clients
+    usno.py       - aa.usno.navy.mil sun/twilight (rstt/oneday)
     windy.py      - Windy Point Forecast v2 stub (inert w/o WINDY_API_KEY)
 tests/            - offline unit tests against tests/fixtures/
 scripts/smoke.py  - live one-shot smoke test (network required)
