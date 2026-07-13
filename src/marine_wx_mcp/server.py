@@ -10,16 +10,31 @@ from __future__ import annotations
 
 from datetime import date as date_cls
 from datetime import datetime
-from typing import Literal
+from typing import Any, Literal
 
 from mcp.server.fastmcp import FastMCP
 
 from marine_wx_mcp import formatting, registry
 from marine_wx_mcp.registry import RegistryError
-from marine_wx_mcp.sources import coast_pilot, navcen, ndbc, nws, openmeteo, usno, windy
+from marine_wx_mcp.sources import (
+    coast_pilot,
+    coops,
+    glerl_ice,
+    navcen,
+    ndbc,
+    nhc,
+    nws,
+    openmeteo,
+    usno,
+    windy,
+)
+from marine_wx_mcp.sources._geo import haversine_nm
 from marine_wx_mcp.sources.coast_pilot import CoastPilotError
+from marine_wx_mcp.sources.coops import CoopsError
+from marine_wx_mcp.sources.glerl_ice import GlerlIceError
 from marine_wx_mcp.sources.navcen import NavcenError
 from marine_wx_mcp.sources.ndbc import NDBCError
+from marine_wx_mcp.sources.nhc import NHCError
 from marine_wx_mcp.sources.nws import NWSError
 from marine_wx_mcp.sources.openmeteo import OpenMeteoError
 from marine_wx_mcp.sources.usno import USNOError
@@ -276,11 +291,13 @@ async def marine_get_sun_times(
     date: str | None = None,
     response_format: ResponseFormat = "markdown",
 ) -> str | dict:
-    """Sunrise/solar transit/sunset and civil twilight begin/end for one day.
+    """Sunrise/solar transit/sunset, civil twilight, and moon data for one day.
 
     Source (USNO) only provides civil twilight, not nautical or
     astronomical - fine for harbor-approach visibility planning, not for
-    celestial navigation sight timing. `date` defaults to today
+    celestial navigation sight timing. Also includes moonrise/set/transit
+    and phase (useful for night-passage planning - a full moon vs. new
+    moon night matters for visibility). `date` defaults to today
     (America/Chicago) if omitted; pass an ISO date (YYYY-MM-DD) otherwise.
     """
     try:
@@ -304,6 +321,103 @@ async def marine_get_sun_times(
     if response_format == "json":
         return {"location": label, **result}
     return formatting.format_sun_times(label, result)
+
+
+@mcp.tool()
+async def marine_get_tides(
+    lat: float | None = None,
+    lon: float | None = None,
+    place: str | None = None,
+    days: int = 2,
+    response_format: ResponseFormat = "markdown",
+) -> str | dict:
+    """Tide predictions, water level, and/or current predictions near a coordinate/place.
+
+    Works nationwide (NOAA CO-OPS). Automatically reports whichever data
+    types have a station within 50nm: tide predictions (high/low) and
+    current predictions (ebb/flood/slack) exist only on tidal coasts -
+    confirmed zero of either on the Great Lakes; water level (observed)
+    exists both on tidal coasts and the Great Lakes (IGLD datum there,
+    MLLW elsewhere). Each section names its station and distance so you
+    can judge relevance; a data type is omitted (not silently zeroed)
+    if nothing is within range.
+    """
+    try:
+        lat_r, lon_r, label = _resolve_coords(lat, lon, place)
+    except RegistryError as exc:
+        return str(exc)
+
+    try:
+        tide_stations = await coops.get_stations("tidepredictions")
+        wl_stations = await coops.get_stations("waterlevels")
+        curr_stations = await coops.get_stations("currentpredictions")
+    except CoopsError as exc:
+        return str(exc)
+
+    def _nearby(stations):
+        station = coops.find_nearest_station(stations, lat_r, lon_r)
+        if station and station["_distance_nm"] <= coops.MAX_STATION_DISTANCE_NM:
+            return station
+        return None
+
+    nearest_tide = _nearby(tide_stations)
+    nearest_wl = _nearby(wl_stations)
+    nearest_curr = _nearby(curr_stations)
+
+    tide = water_level = currents = None
+    try:
+        if nearest_tide:
+            predictions = await coops.get_tide_predictions(nearest_tide["id"], days)
+            tide = {"station": nearest_tide, "predictions": predictions}
+    except CoopsError as exc:
+        tide = {"station": nearest_tide, "error": str(exc)}
+
+    try:
+        if nearest_wl:
+            reading = await coops.get_water_level(nearest_wl["id"], nearest_wl["greatlakes"])
+            water_level = {"station": nearest_wl, "reading": reading}
+    except CoopsError as exc:
+        water_level = {"station": nearest_wl, "error": str(exc)}
+
+    try:
+        if nearest_curr:
+            predictions = await coops.get_current_predictions(nearest_curr["id"], days)
+            currents = {"station": nearest_curr, "predictions": predictions}
+    except CoopsError as exc:
+        currents = {"station": nearest_curr, "error": str(exc)}
+
+    if response_format == "json":
+        return {"location": label, "tide": tide, "water_level": water_level, "currents": currents}
+    return formatting.format_tides(label, tide, water_level, currents)
+
+
+@mcp.tool()
+async def marine_get_ice_conditions(
+    lake: str | None = None,
+    response_format: ResponseFormat = "markdown",
+) -> str | dict:
+    """Current Great Lakes ice cover percentage by lake (NOAA GLERL).
+
+    Whole-lake daily percentages, not location-specific - useful for
+    shoulder-season (roughly Dec-Apr) Great Lakes passage planning.
+    Outside ice season this legitimately reads 0% everywhere - that's
+    real data, not a missing-data failure. Optionally filter to one
+    lake (Superior/Michigan/Huron/Erie/Ontario/St_Clair); omit for all
+    lakes plus the basin-wide total.
+    """
+    try:
+        result = await glerl_ice.get_latest_ice_cover()
+    except GlerlIceError as exc:
+        return str(exc)
+
+    if lake:
+        if lake not in result["lakes"]:
+            return f"Unknown lake '{lake}'. Valid: {', '.join(glerl_ice.LAKES)}."
+        result = {**result, "lakes": {lake: result["lakes"][lake]}}
+
+    if response_format == "json":
+        return result
+    return formatting.format_ice_conditions(result)
 
 
 @mcp.tool()
@@ -418,6 +532,253 @@ async def marine_search_coast_pilot(
     if response_format == "json":
         return {"query": query, "location": label, "results": results}
     return formatting.format_coast_pilot_search(query, results)
+
+
+DEFAULT_CYCLONE_RADIUS_NM = 300
+
+
+@mcp.tool()
+async def marine_get_tropical_cyclones(
+    lat: float | None = None,
+    lon: float | None = None,
+    place: str | None = None,
+    radius_nm: float | None = None,
+    response_format: ResponseFormat = "markdown",
+) -> str | dict:
+    """Active tropical cyclones (NHC - Atlantic and Eastern/Central Pacific only).
+
+    Does NOT cover Western Pacific or Indian Ocean typhoons - different
+    issuing agencies (JTWC etc.), out of scope. Omit place/lat/lon to
+    list every active storm in NHC's basins; add a location to filter
+    to storms within radius_nm (default 300nm - tropical cyclone hazards
+    extend far beyond the storm center, so this is deliberately generous
+    compared to the other radius-based tools). Each storm links to its
+    full public advisory and forecast discussion for the real
+    trackline/timing detail this summary doesn't include.
+    """
+    try:
+        storms = await nhc.get_active_storms()
+    except NHCError as exc:
+        return str(exc)
+
+    label = None
+    if place or (lat is not None and lon is not None) or radius_nm is not None:
+        try:
+            lat_r, lon_r, label = _resolve_coords(lat, lon, place)
+        except RegistryError as exc:
+            return str(exc)
+        radius = radius_nm if radius_nm is not None else DEFAULT_CYCLONE_RADIUS_NM
+        filtered = []
+        for s in storms:
+            if s["lat"] is None or s["lon"] is None:
+                continue
+            distance = haversine_nm(lat_r, lon_r, s["lat"], s["lon"])
+            if distance <= radius:
+                filtered.append({**s, "_distance_nm": round(distance, 1)})
+        storms = sorted(filtered, key=lambda s: s["_distance_nm"])
+
+    if response_format == "json":
+        return {"location": label, "storms": storms}
+    return formatting.format_tropical_cyclones(label, storms)
+
+
+GREAT_LAKES_BBOX = (41.0, 49.0, -93.0, -76.0)  # lat_min, lat_max, lon_min, lon_max
+
+
+def _resolve_waypoint(waypoint: str) -> tuple[float, float, str, list[str]]:
+    """A waypoint is either a registry place name or a "lat,lon" string.
+
+    Returns (lat, lon, label, zones) - zones is [] for ad-hoc coordinates
+    (no registry zone list to draw on), which the caller uses to decide
+    whether zone-based alerts/forecast apply to this waypoint.
+    """
+    parts = waypoint.split(",")
+    if len(parts) == 2:
+        try:
+            lat, lon = float(parts[0]), float(parts[1])
+            return lat, lon, waypoint, []
+        except ValueError:
+            pass
+    port = registry.get_port(waypoint)
+    return port["lat"], port["lon"], waypoint, list(port["zones"])
+
+
+@mcp.tool()
+async def marine_route_outlook(
+    waypoints: list[str],
+    depart_date: str | None = None,
+    radius_nm: float = 10,
+    response_format: ResponseFormat = "markdown",
+) -> str | dict:
+    """Composite go/no-go passage-planning briefing for a route.
+
+    Pass an ordered list of waypoints - registry place names and/or
+    "lat,lon" strings, e.g. ["waukegan", "north_point", "kenosha"] (use
+    marine_list_registry to see a registered route's legs, or mix in
+    raw coordinates for places not yet in the registry). Combines:
+    active alerts + zone forecast for every unique zone crossed, a
+    short point forecast at each waypoint, charted aids + live
+    navigation discrepancies within radius_nm of each waypoint,
+    tide/water-level/current data within 50nm, active tropical cyclones
+    within 300nm of the route, Great Lakes ice cover (only included if
+    a waypoint falls within the Great Lakes basin), and sun/moon times
+    for the departure date at the first waypoint. This assembles the
+    raw facts - it does not make the go/no-go call itself.
+
+    Ad-hoc "lat,lon" waypoints skip zone-based alerts/forecast (no
+    registry zone to resolve there) - everything else still applies.
+    `depart_date` defaults to today (America/Chicago); pass an ISO date
+    (YYYY-MM-DD) otherwise.
+    """
+    resolved = []
+    for wp in waypoints:
+        try:
+            lat, lon, label, zones = _resolve_waypoint(wp)
+        except RegistryError as exc:
+            return f"Couldn't resolve waypoint '{wp}': {exc}"
+        resolved.append({"lat": lat, "lon": lon, "label": label, "zones": zones})
+
+    if depart_date:
+        try:
+            when = date_cls.fromisoformat(depart_date)
+        except ValueError:
+            return f"Invalid depart_date '{depart_date}' - use ISO format (YYYY-MM-DD)."
+    else:
+        when = datetime.now(formatting.LOCAL_TZ).date()
+
+    unique_zones: list[str] = []
+    for wp in resolved:
+        for z in wp["zones"]:
+            if z not in unique_zones:
+                unique_zones.append(z)
+
+    alerts_by_zone: dict[str, list] = {}
+    zone_forecasts: dict[str, dict] = {}
+    if unique_zones:
+        try:
+            features = await nws.get_active_alerts(unique_zones)
+        except NWSError as exc:
+            features = []
+            alerts_by_zone["_error"] = str(exc)
+        else:
+            for f in features:
+                for z in f["properties"].get("affectedZones", []):
+                    zone_id = z.rsplit("/", 1)[-1]
+                    alerts_by_zone.setdefault(zone_id, []).append(f)
+        for zone_id in unique_zones:
+            try:
+                office = await nws.get_marine_zone_office(zone_id)
+                _, zones_data = await nws.get_marine_zone_forecast(office)
+                zone_forecasts[zone_id] = zones_data.get(zone_id)
+            except NWSError as exc:
+                zone_forecasts[zone_id] = {"error": str(exc)}
+
+    waypoint_details = []
+    for wp in resolved:
+        lat, lon, label = wp["lat"], wp["lon"], wp["label"]
+        detail: dict[str, Any] = {"label": label, "lat": lat, "lon": lon}
+
+        try:
+            meta = await nws.get_point_metadata(lat, lon)
+            periods = await nws.get_gridpoint_hourly_forecast(
+                meta["gridId"], meta["gridX"], meta["gridY"]
+            )
+            detail["forecast"] = [
+                {
+                    "time": p["startTime"],
+                    "temperature_f": p.get("temperature"),
+                    "wind_speed": formatting.mph_string_to_knots(p.get("windSpeed", "")),
+                    "wind_direction": p.get("windDirection"),
+                    "short_forecast": p.get("shortForecast"),
+                }
+                for p in periods[:6]
+            ]
+        except NWSError as exc:
+            detail["forecast_error"] = str(exc)
+
+        try:
+            lights = await navcen.get_light_list("09")
+            detail["aids_nearby"] = len(navcen.filter_by_radius(lights, lat, lon, radius_nm))
+        except NavcenError:
+            detail["aids_nearby"] = None
+
+        try:
+            layers = await navcen.get_discrepancies()
+            detail["discrepancies"] = {
+                key: navcen.filter_by_radius(items, lat, lon, radius_nm)
+                for key, items in layers.items()
+            }
+        except NavcenError as exc:
+            detail["discrepancies_error"] = str(exc)
+
+        try:
+            tide_stations = await coops.get_stations("tidepredictions")
+            wl_stations = await coops.get_stations("waterlevels")
+            nearest_tide = coops.find_nearest_station(tide_stations, lat, lon)
+            nearest_wl = coops.find_nearest_station(wl_stations, lat, lon)
+            if nearest_tide and nearest_tide["_distance_nm"] <= coops.MAX_STATION_DISTANCE_NM:
+                detail["tide"] = {
+                    "station": nearest_tide,
+                    "predictions": await coops.get_tide_predictions(nearest_tide["id"], days=2),
+                }
+            if nearest_wl and nearest_wl["_distance_nm"] <= coops.MAX_STATION_DISTANCE_NM:
+                detail["water_level"] = {
+                    "station": nearest_wl,
+                    "reading": await coops.get_water_level(nearest_wl["id"], nearest_wl["greatlakes"]),
+                }
+        except CoopsError as exc:
+            detail["tide_error"] = str(exc)
+
+        waypoint_details.append(detail)
+
+    try:
+        all_storms = await nhc.get_active_storms()
+        storms = []
+        seen_ids = set()
+        for wp in resolved:
+            for s in all_storms:
+                if s["id"] in seen_ids or s["lat"] is None or s["lon"] is None:
+                    continue
+                distance = haversine_nm(wp["lat"], wp["lon"], s["lat"], s["lon"])
+                if distance <= DEFAULT_CYCLONE_RADIUS_NM:
+                    seen_ids.add(s["id"])
+                    storms.append({**s, "_distance_nm": round(distance, 1)})
+    except NHCError:
+        storms = []
+
+    ice = None
+    if any(
+        GREAT_LAKES_BBOX[0] <= wp["lat"] <= GREAT_LAKES_BBOX[1]
+        and GREAT_LAKES_BBOX[2] <= wp["lon"] <= GREAT_LAKES_BBOX[3]
+        for wp in resolved
+    ):
+        try:
+            ice = await glerl_ice.get_latest_ice_cover()
+        except GlerlIceError:
+            ice = None
+
+    sun_moon = None
+    try:
+        first = resolved[0]
+        sun_moon = await usno.get_sun_times(first["lat"], first["lon"], when)
+    except USNOError:
+        sun_moon = None
+
+    result = {
+        "waypoints": [wp["label"] for wp in resolved],
+        "depart_date": when.isoformat(),
+        "zones": unique_zones,
+        "alerts_by_zone": alerts_by_zone,
+        "zone_forecasts": zone_forecasts,
+        "waypoint_details": waypoint_details,
+        "tropical_cyclones": storms,
+        "ice": ice,
+        "sun_moon": sun_moon,
+    }
+
+    if response_format == "json":
+        return result
+    return formatting.format_route_outlook(result)
 
 
 @mcp.tool()

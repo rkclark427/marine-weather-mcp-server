@@ -72,6 +72,13 @@ async def test_get_sun_times_summer(monkeypatch):
     assert events["Rise"].endswith("-05:00")
     assert events["Rise"] < events["Upper Transit"] < events["Set"]
 
+    assert result["moon_events"]  # moonrise/set/transit present this day
+    phase = result["moon_phase"]
+    assert phase["current_phase"]
+    assert phase["fraction_illuminated"].endswith("%")
+    assert phase["closest_phase"]["phase"]
+    assert phase["closest_phase"]["time"] is not None
+
 
 @pytest.mark.asyncio
 async def test_get_sun_times_winter_uses_cst_offset(monkeypatch):

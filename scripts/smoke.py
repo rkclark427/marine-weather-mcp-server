@@ -53,6 +53,14 @@ async def main() -> None:
         server.marine_get_sun_times(place="kenosha"),
     )
     await _run(
+        "marine_get_tides (place=kenosha, Great Lakes - water level only)",
+        server.marine_get_tides(place="kenosha"),
+    )
+    await _run(
+        "marine_get_tides (Eastport ME - tide + water level + currents)",
+        server.marine_get_tides(lat=44.9, lon=-66.98),
+    )
+    await _run(
         "marine_get_aids_to_navigation (place=kenosha, 5nm)",
         server.marine_get_aids_to_navigation(place="kenosha", radius_nm=5),
     )
@@ -64,6 +72,18 @@ async def main() -> None:
         "marine_search_coast_pilot (Kenosha fuel - requires prior "
         "scripts/ingest_coast_pilot.py run)",
         server.marine_search_coast_pilot("Kenosha fuel", limit=3),
+    )
+    await _run(
+        "marine_get_tropical_cyclones (all active, Atlantic/E&C Pacific)",
+        server.marine_get_tropical_cyclones(),
+    )
+    await _run(
+        "marine_get_ice_conditions (all lakes)",
+        server.marine_get_ice_conditions(),
+    )
+    await _run(
+        "marine_route_outlook (waukegan -> north_point -> kenosha)",
+        server.marine_route_outlook(["waukegan", "north_point", "kenosha"]),
     )
     await _run("marine_list_registry", server.marine_list_registry())
     await _run(

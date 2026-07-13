@@ -50,12 +50,30 @@ def _std_offset_and_dst(when: date_cls, tz_name: str) -> tuple[float, bool]:
     return std_hours, dst_offset != timedelta(0)
 
 
+def _parse_time_events(
+    entries: list[dict[str, Any]], year: int, month: int, day: int, tz_name: str
+) -> dict[str, str]:
+    events: dict[str, str] = {}
+    for entry in entries:
+        match = _TIME_RE.match(entry["time"])
+        if not match:
+            continue
+        hour, minute = int(match.group(1)), int(match.group(2))
+        local_dt = datetime(year, month, day, hour, minute, tzinfo=ZoneInfo(tz_name))
+        events[entry["phen"]] = local_dt.isoformat()
+    return events
+
+
 async def get_sun_times(
     lat: float, lon: float, when: date_cls, tz_name: str = "America/Chicago"
 ) -> dict[str, Any]:
-    """Sunrise/transit/sunset and civil twilight begin/end for one day.
+    """Sunrise/transit/sunset, civil twilight, and moon data for one day.
 
-    Returns {"date": iso date, "tz_name": ..., "events": {phen: iso_local_datetime}}.
+    Returns {"date", "tz_name", "events": {phen: iso_local_datetime},
+    "moon_events": {phen: iso_local_datetime}, "moon_phase": {...}}.
+    moon_events may have 0-2 entries some days (moonrise/set don't occur
+    every calendar day, since the moon rises ~50min later each day) -
+    that's real, not a parsing failure.
     """
     std_offset, is_dst = _std_offset_and_dst(when, tz_name)
     params = {
@@ -84,15 +102,33 @@ async def get_sun_times(
         )
 
     data = resp.json()["properties"]["data"]
-    events: dict[str, str] = {}
-    for entry in data.get("sundata", []):
-        match = _TIME_RE.match(entry["time"])
-        if not match:
-            continue
-        hour, minute = int(match.group(1)), int(match.group(2))
-        local_dt = datetime(
-            when.year, when.month, when.day, hour, minute, tzinfo=ZoneInfo(tz_name)
-        )
-        events[entry["phen"]] = local_dt.isoformat()
+    events = _parse_time_events(data.get("sundata", []), when.year, when.month, when.day, tz_name)
+    moon_events = _parse_time_events(
+        data.get("moondata", []), when.year, when.month, when.day, tz_name
+    )
 
-    return {"date": when.isoformat(), "tz_name": tz_name, "events": events}
+    closest_phase = None
+    cp = data.get("closestphase")
+    if cp:
+        match = _TIME_RE.match(cp["time"])
+        cp_time = None
+        if match:
+            hour, minute = int(match.group(1)), int(match.group(2))
+            cp_time = datetime(
+                cp["year"], cp["month"], cp["day"], hour, minute, tzinfo=ZoneInfo(tz_name)
+            ).isoformat()
+        closest_phase = {"phase": cp["phase"], "time": cp_time}
+
+    moon_phase = {
+        "current_phase": data.get("curphase"),
+        "fraction_illuminated": data.get("fracillum"),
+        "closest_phase": closest_phase,
+    }
+
+    return {
+        "date": when.isoformat(),
+        "tz_name": tz_name,
+        "events": events,
+        "moon_events": moon_events,
+        "moon_phase": moon_phase,
+    }

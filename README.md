@@ -88,10 +88,14 @@ verification status. Quick summary:
 - `marine_get_point_forecast` - NWS gridpoint hourly forecast for a coordinate/place
 - `marine_get_forecast_discussion` - latest Area Forecast Discussion (.MARINE section)
 - `marine_get_model_forecast` - Open-Meteo ECMWF vs GFS wind comparison
-- `marine_get_sun_times` - sunrise/transit/sunset + civil twilight for a coordinate/place/date
+- `marine_get_sun_times` - sunrise/transit/sunset, civil twilight, and moon data for a coordinate/place/date
+- `marine_get_tides` - tide predictions, water level, and/or current predictions near a coordinate/place (nationwide)
 - `marine_get_aids_to_navigation` - charted Light List entries near a coordinate/place
 - `marine_get_navigation_discrepancies` - live aid outages, hazards, temporary changes, marine events near a coordinate/place
 - `marine_search_coast_pilot` - full-text search over all 10 U.S. Coast Pilot volumes (nationwide; needs one-time ingest, see above)
+- `marine_get_tropical_cyclones` - active tropical cyclones (NHC - Atlantic/Eastern-Central Pacific only)
+- `marine_get_ice_conditions` - current Great Lakes ice cover percentage by lake
+- `marine_route_outlook` - composite go/no-go passage-planning briefing for a route (alerts + forecast + navigation + tides + storms + ice + sun/moon, all in one call)
 - `marine_list_registry` - dump known ports/zones/stations/routes
 - `marine_get_windy_forecast` - Windy Point Forecast (v2 roadmap, inert without a key)
 

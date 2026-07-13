@@ -81,7 +81,14 @@ All live-verified 2026-07-06. Fixtures captured in `tests/fixtures/`.
   and needs no key, but the `tz`/`dst` params have a non-obvious contract
   - see the gotcha below. `sundata` only carries civil twilight (no
   nautical/astronomical), confirmed live and matches the tool's
-  documented caveat.
+  documented caveat. Moon data added 2026-07-13: the same response
+  already carried `moondata`/`curphase`/`fracillum`/`closestphase` that
+  were being discarded - confirmed live that `closestphase` can fall on
+  a different calendar day than the requested date (own
+  day/month/year fields, not `when`) and that `moondata` legitimately
+  has 0-3 entries depending on the day (moonrise/set don't occur every
+  calendar day since moonrise shifts ~50min later daily) - not a
+  parsing failure if `moon_events` comes back sparse.
 - **V-7 (NAVCEN aids to navigation, added 2026-07-12)**: CONFIRMED both
   the Light List and the live discrepancy/hazard layers work and need no
   key. Real field names captured live (differ in places from the initial
@@ -169,6 +176,80 @@ All live-verified 2026-07-06. Fixtures captured in `tests/fixtures/`.
   parsed into sub-areas - confirmed it's an ocean-basin-wide narrative
   (ALL CAPS, embedded lat/lon polygons, ice/tropical-cyclone caveats)
   with no zone-style subdivision to parse against.
+- **V-10 (CO-OPS tides/currents, added 2026-07-13)**: CONFIRMED no key
+  needed, and confirmed live that Lake Michigan has zero tide-prediction
+  and zero current-prediction stations (no astronomical tide on the
+  Great Lakes - both `tidepredictions` and `currentpredictions` station
+  lists return 0 results in a Lake Michigan bounding box) but does have
+  `waterlevels` stations (Milwaukee, Calumet Harbor) - designed
+  `marine_get_tides` to report whichever of the three product types has
+  a station within 50nm rather than assuming all three apply everywhere.
+  Confirmed the three station lists are disjoint (not one list with
+  capability flags) and datum must be picked from the station's own
+  `greatlakes` boolean (IGLD there, MLLW on tidal coasts) - requesting
+  tide predictions against a Great Lakes station returns a clean
+  `{"error": {"message": "Great Lakes stations don't have Predictions
+  data."}}`, not a crash or a misleadingly-empty result. Also confirmed
+  live that `date=today&range=<hours>` does NOT reliably extend
+  `interval=hilo` tide predictions past the current day (range=48 only
+  returned today's ~4 events) - switched to explicit
+  `begin_date`/`end_date` which does give the correct multi-day window.
+- **V-11 (NHC tropical cyclones, added 2026-07-13)**: CONFIRMED no key
+  needed for `CurrentStorms.json`. No storm was active in either Atlantic
+  or Eastern/Central Pacific during verification (mid-July, before Aug-
+  Oct peak season) - schema confirmed instead against NHC's own official
+  sample file (`nhc.noaa.gov/productexamples/NHC_JSON_Sample.json`),
+  which is exactly what NHC publishes as its field reference; one real
+  field name mismatch was caught this way (`classification: "PTC"` for
+  post-tropical, not the "PT" first guessed) before it could ship wrong.
+  **Confirmed live NHC's feed only covers its own area of responsibility**
+  - api.weather.gov had an active `TCP` (Public Tropical Cyclone
+  Advisory) product from `PGUM` (Guam) for a Western Pacific system at
+  the same moment NHC's `CurrentStorms.json` was completely empty -
+  different basin, different issuing agency (JTWC-adjacent, not NHC) -
+  `marine_get_tropical_cyclones` documents this scope limit rather than
+  implying global coverage. `movementSpeed` is presented as mph per
+  NHC's well-established public-advisory convention; the JSON field
+  itself carries no unit label, so this is inferred from known NHC
+  publication style, not verified from this specific field.
+- **V-12 (Great Lakes ice cover, added 2026-07-13)**: CONFIRMED no key
+  needed. The obvious-by-name candidate dataset on GLERL's ERDDAP,
+  `GL_Ice_Cover` ("Great Lakes Ice Cover Dataset"), looked right in
+  `/info/` metadata but its actual griddap query endpoint returned a
+  consistent 404 "Currently unknown datasetID" on retry - confirmed
+  genuinely down, not a URL mistake, since a different dataset
+  (`glerlIce`) answered normally on the same server at the same moment.
+  Switched to `glerlIce` ("Great Lakes Ice Concentration, Daily"),
+  which turned out to be a better fit anyway: simple daily whole-lake
+  percentages (`tabledap`, one row per day, a column per lake), not a
+  spatial grid needing lat/lon subsetting. Confirmed the actual values
+  are real/climatologically sane, not placeholders - Feb 2026 showed
+  Erie ~94-95% (shallow, freezes fastest) vs. Michigan ~30-36% (deep,
+  freezes least), matching known Great Lakes ice behavior. Confirmed
+  live that outside ice season every lake legitimately reads 0%
+  (checked the latest available row, 2026-05-16, post-season) - the
+  tool says so explicitly rather than presenting zeros as a possible
+  data failure.
+- **marine_route_outlook (added 2026-07-13)**: not a new data source -
+  orchestrates the existing tools (alerts, zone forecast, point
+  forecast, aids/discrepancies, tides/water level, tropical cyclones,
+  ice, sun/moon) into one composite passage-planning briefing, per
+  Kent's stated primary use case for this server ("Claude Desktop
+  helping prepare for a crossing or itinerary"). Accepts a mix of
+  registry place names and ad-hoc `"lat,lon"` waypoints in one call
+  (`_resolve_waypoint` in `server.py`) - ad-hoc coordinates skip
+  zone-based alerts/forecast (no registry zone to resolve there) but
+  still get everything coordinate-based. Verified live with a mixed
+  registry+coordinate route and confirmed the zone-skip behaves
+  correctly (only the registry waypoint's zone appears in output).
+  Deliberately does NOT make the go/no-go judgment itself - assembles
+  the raw facts and leaves the actual reasoning to the calling model,
+  consistent with every other tool in this server. Found and fixed one
+  real bug while verifying live: the ice section used `if total:` which
+  treats a legitimate 0% (off-season) as falsy and silently drops the
+  line - changed to `if total is not None:` and added a regression test
+  (`test_format_route_outlook_shows_zero_percent_ice_not_blank`) since
+  this class of bug is easy to reintroduce and easy to miss by eye.
 
 ## Other gotchas worth knowing before editing sources/
 
@@ -254,10 +335,10 @@ All live-verified 2026-07-06. Fixtures captured in `tests/fixtures/`.
   rest of the server's knots convention.
 - Every source client exception (`NWSError`, `NDBCError`,
   `OpenMeteoError`, `RegistryError`, `USNOError`, `NavcenError`,
-  `CoastPilotError`) carries an actionable message naming the source and
-  a fallback tool - tool functions in `server.py` catch these and return
-  the message as the tool result rather than crashing. Keep that pattern
-  when adding tools.
+  `CoastPilotError`, `CoopsError`, `NHCError`, `GlerlIceError`) carries
+  an actionable message naming the source and a fallback tool - tool
+  functions in `server.py` catch these and return the message as the
+  tool result rather than crashing. Keep that pattern when adding tools.
 
 ## Package layout
 
@@ -271,10 +352,13 @@ src/marine_wx_mcp/
     nws.py         - api.weather.gov (alerts, gridpoints, NSH/CWF, OFF, HSF, AFD)
     ndbc.py        - NDBC realtime2 fetch + parser
     openmeteo.py   - Open-Meteo forecast + marine clients
-    usno.py        - aa.usno.navy.mil sun/twilight (rstt/oneday)
+    usno.py        - aa.usno.navy.mil sun/twilight + moon (rstt/oneday)
     navcen.py      - navcen.uscg.gov MSI Light List + discrepancy layers (cached)
     coast_pilot.py - local SQLite/FTS5 index over all 10 Coast Pilot volumes (no live API)
-    _geo.py        - shared haversine helper (navcen.py, coast_pilot.py)
+    coops.py       - CO-OPS tides/water levels/currents (station lists cached 24h)
+    nhc.py         - NHC active tropical cyclones (Atlantic/E&C Pacific only)
+    glerl_ice.py   - GLERL daily Great Lakes ice cover by lake (ERDDAP tabledap)
+    _geo.py        - shared haversine helper (navcen.py, coast_pilot.py, coops.py, server.py)
     windy.py       - Windy Point Forecast v2 stub (inert w/o WINDY_API_KEY)
 tests/                        - offline unit tests against tests/fixtures/
 scripts/smoke.py              - live one-shot smoke test (network required)

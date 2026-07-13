@@ -1,0 +1,10 @@
+{
+  "table": {
+    "columnNames": ["time", "Superior", "Michigan", "Huron", "Erie", "Ontario", "St_Clair", "GL_Total"],
+    "columnTypes": ["String", "float", "float", "float", "float", "float", "float", "float"],
+    "columnUnits": ["UTC", "percent", "percent", "percent", "percent", "percent", "percent", "percent"],
+    "rows": [
+      ["2026-05-16T00:00:00Z", 0, 0, 0, 0, 0, 0, 0]
+    ]
+  }
+}

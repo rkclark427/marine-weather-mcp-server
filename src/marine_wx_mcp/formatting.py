@@ -12,6 +12,7 @@ from datetime import datetime, timedelta
 from typing import Any
 from zoneinfo import ZoneInfo
 
+from marine_wx_mcp.sources.coops import MAX_STATION_DISTANCE_NM
 from marine_wx_mcp.sources.navcen import light_range_nm
 
 LOCAL_TZ = ZoneInfo("America/Chicago")
@@ -204,12 +205,15 @@ _SUN_EVENT_ORDER = [
 ]
 
 
+_MOON_EVENT_ORDER = ["Rise", "Upper Transit", "Set"]
+
+
 def format_sun_times(place_or_coords: str, result: dict[str, Any]) -> str:
     events = result["events"]
     if not events:
         return f"No sun/twilight data returned for {place_or_coords} on {result['date']}."
 
-    lines = [f"## Sun & civil twilight - {place_or_coords} ({result['date']})\n"]
+    lines = [f"## Sun & moon - {place_or_coords} ({result['date']})\n", "### Sun"]
     for phen in _SUN_EVENT_ORDER:
         if phen in events:
             lines.append(f"- **{phen}:** {to_local(events[phen])}")
@@ -217,6 +221,25 @@ def format_sun_times(place_or_coords: str, result: dict[str, Any]) -> str:
         "\n*Civil twilight only - not nautical or astronomical twilight; "
         "not suitable for celestial navigation sight timing.*"
     )
+
+    moon_events = result.get("moon_events") or {}
+    moon_phase = result.get("moon_phase") or {}
+    lines.append("\n### Moon")
+    if moon_phase.get("current_phase"):
+        line = f"- **Phase:** {moon_phase['current_phase']}"
+        if moon_phase.get("fraction_illuminated"):
+            line += f" ({moon_phase['fraction_illuminated']} illuminated)"
+        lines.append(line)
+    closest = moon_phase.get("closest_phase")
+    if closest and closest.get("time"):
+        lines.append(f"- **Next {closest['phase']}:** {to_local(closest['time'])}")
+    for phen in _MOON_EVENT_ORDER:
+        if phen in moon_events:
+            lines.append(f"- **Moon {phen}:** {to_local(moon_events[phen])}")
+    if not moon_events:
+        lines.append("- *No moonrise or moonset today (can happen - the moon rises "
+                      "~50 min later each day).*")
+
     return "\n".join(lines)
 
 
@@ -319,4 +342,217 @@ def format_coast_pilot_search(query: str, results: list[dict[str, Any]]) -> str:
         lines.append(f"**{place}** [{cite}]{distance}")
         lines.append(r["text"])
         lines.append("")
+    return "\n".join(lines)
+
+
+def format_tides(
+    place_or_coords: str,
+    tide: dict[str, Any] | None,
+    water_level: dict[str, Any] | None,
+    currents: dict[str, Any] | None,
+) -> str:
+    if not (tide or water_level or currents):
+        return (
+            f"No tide, water level, or current station within "
+            f"{MAX_STATION_DISTANCE_NM}nm of {place_or_coords}."
+        )
+
+    lines = [f"## Tides & currents - {place_or_coords}\n"]
+
+    if tide:
+        st = tide["station"]
+        lines.append(f"### Tide predictions - {st['name']} ({st['_distance_nm']}nm), MLLW datum")
+        if "error" in tide:
+            lines.append(f"*{tide['error']}*")
+        else:
+            for p in tide["predictions"]:
+                kind = "High" if p["type"] == "H" else "Low"
+                lines.append(f"- **{kind}** {p['t']}: {p['v']} ft")
+        lines.append("")
+
+    if water_level:
+        st = water_level["station"]
+        datum = "IGLD" if st.get("greatlakes") else "MLLW"
+        lines.append(f"### Water level - {st['name']} ({st['_distance_nm']}nm), {datum} datum")
+        reading = water_level.get("reading")
+        if "error" in water_level:
+            lines.append(f"*{water_level['error']}*")
+        elif reading:
+            lines.append(f"- **{reading['t']}:** {reading['v']} ft")
+        else:
+            lines.append("- No recent reading available.")
+        lines.append("")
+
+    if currents:
+        st = currents["station"]
+        lines.append(f"### Current predictions - {st['name']} ({st['_distance_nm']}nm)")
+        if "error" in currents:
+            lines.append(f"*{currents['error']}*")
+        else:
+            for p in currents["predictions"]:
+                kind = p["Type"].capitalize()
+                velocity = p.get("Velocity_Major")
+                vel_str = f", {abs(velocity)} kt" if velocity else ""
+                lines.append(f"- **{kind}** {p['Time']}{vel_str}")
+        lines.append("")
+
+    return "\n".join(lines)
+
+
+def format_tropical_cyclones(place_or_coords: str | None, storms: list[dict[str, Any]]) -> str:
+    if not storms:
+        scope = f" within range of {place_or_coords}" if place_or_coords else ""
+        return (
+            f"No active tropical cyclones{scope} in NHC's area of responsibility "
+            "(Atlantic, Eastern/Central Pacific). Doesn't cover Western Pacific or "
+            "Indian Ocean typhoons - different issuing agencies."
+        )
+
+    title = f"Tropical cyclones near {place_or_coords}" if place_or_coords else "Active tropical cyclones"
+    lines = [f"## {title}\n"]
+    for s in storms:
+        distance = f" - {s['_distance_nm']}nm away" if "_distance_nm" in s else ""
+        lines.append(f"### {s['name']} - {s['classification_name']}{distance}")
+        lines.append(
+            f"- **Winds:** {s['wind_kt']} kt, **Pressure:** {s['pressure_mb']} mb"
+        )
+        lines.append(f"- **Position:** {s['lat']}, {s['lon']}")
+        if s.get("movement_dir_deg") is not None:
+            lines.append(
+                f"- **Movement:** {s['movement_dir_deg']}° at {s['movement_speed_mph']} mph"
+            )
+        lines.append(f"- **Last update:** {s['last_update']}")
+        if s.get("advisory_url"):
+            lines.append(f"- [Public advisory]({s['advisory_url']})")
+        if s.get("discussion_url"):
+            lines.append(f"- [Forecast discussion]({s['discussion_url']})")
+        lines.append("")
+    return "\n".join(lines)
+
+
+def format_ice_conditions(result: dict[str, Any]) -> str:
+    date_str = result["date"].split("T")[0]
+    lines = [f"## Great Lakes ice cover - {date_str}\n"]
+    for lake, pct in result["lakes"].items():
+        lines.append(f"- **{lake.replace('_', ' ')}:** {pct}%")
+    if "total" in result and len(result["lakes"]) > 1:
+        lines.append(f"- **Great Lakes total:** {result['total']}%")
+    if all(v == 0 for v in result["lakes"].values()):
+        lines.append("\n*0% across the board likely means it's outside ice season "
+                      "(roughly Dec-Apr), not missing data.*")
+    return "\n".join(lines)
+
+
+def format_route_outlook(result: dict[str, Any]) -> str:
+    lines = [
+        f"# Route outlook: {' -> '.join(result['waypoints'])}",
+        f"*Departing {result['depart_date']}*\n",
+    ]
+
+    lines.append("## Alerts")
+    alerts_by_zone = result["alerts_by_zone"]
+    if alerts_by_zone.get("_error"):
+        lines.append(f"*{alerts_by_zone['_error']}*")
+    else:
+        any_alert = False
+        for zone_id, features in alerts_by_zone.items():
+            for f in features:
+                any_alert = True
+                p = f["properties"]
+                lines.append(f"- **{p.get('event')}** ({zone_id}): {p.get('headline', '')}")
+        if not any_alert:
+            lines.append(
+                "No active alerts." if result["zones"] else "No registry zones to check (all ad-hoc waypoints)."
+            )
+    lines.append("")
+
+    if result["zones"]:
+        lines.append("## Zone forecasts")
+        for zone_id in result["zones"]:
+            zdata = result["zone_forecasts"].get(zone_id)
+            if not zdata:
+                lines.append(f"- **{zone_id}:** no forecast text found.")
+            elif "error" in zdata:
+                lines.append(f"- **{zone_id}:** {zdata['error']}")
+            else:
+                lines.append(f"### {zone_id} - {zdata['area']}")
+                for period, text in list(zdata["periods"].items())[:2]:
+                    lines.append(f"- **{period}:** {text}")
+        lines.append("")
+
+    lines.append("## Waypoints")
+    for d in result["waypoint_details"]:
+        lines.append(f"### {d['label']}")
+        if d.get("forecast"):
+            p = d["forecast"][0]
+            when = to_local(p["time"])
+            lines.append(
+                f"- **Now-ish ({when}):** {p.get('temperature_f', '?')}°F, "
+                f"wind {p.get('wind_direction', '')} {p.get('wind_speed', '')}, "
+                f"{p.get('short_forecast', '')}"
+            )
+        elif d.get("forecast_error"):
+            lines.append(f"- *Forecast: {d['forecast_error']}*")
+
+        if d.get("aids_nearby") is not None:
+            lines.append(f"- **Charted aids within range:** {d['aids_nearby']}")
+
+        discrepancies = d.get("discrepancies")
+        if discrepancies:
+            total = sum(len(v) for v in discrepancies.values())
+            if total:
+                parts = [f"{len(v)} {k.replace('_', ' ')}" for k, v in discrepancies.items() if v]
+                lines.append(f"- **Navigation discrepancies:** {', '.join(parts)}")
+            else:
+                lines.append("- **Navigation discrepancies:** none nearby")
+        elif d.get("discrepancies_error"):
+            lines.append(f"- *Discrepancies: {d['discrepancies_error']}*")
+
+        if d.get("tide"):
+            st = d["tide"]["station"]
+            next_events = d["tide"]["predictions"][:2]
+            summary = "; ".join(
+                f"{'High' if p['type'] == 'H' else 'Low'} {p['t']} ({p['v']}ft)"
+                for p in next_events
+            )
+            lines.append(f"- **Tide ({st['name']}, {st['_distance_nm']}nm):** {summary}")
+        if d.get("water_level"):
+            st = d["water_level"]["station"]
+            reading = d["water_level"].get("reading")
+            if reading:
+                lines.append(
+                    f"- **Water level ({st['name']}, {st['_distance_nm']}nm):** "
+                    f"{reading['v']} ft as of {reading['t']}"
+                )
+        if d.get("tide_error"):
+            lines.append(f"- *Tides: {d['tide_error']}*")
+        lines.append("")
+
+    if result["tropical_cyclones"]:
+        lines.append("## Tropical cyclones within range")
+        for s in result["tropical_cyclones"]:
+            lines.append(
+                f"- **{s['name']}** ({s['classification_name']}) - "
+                f"{s['_distance_nm']}nm away, {s['wind_kt']} kt"
+            )
+        lines.append("")
+
+    if result.get("ice"):
+        ice = result["ice"]
+        date_str = ice["date"].split("T")[0]
+        total = ice.get("total")
+        lines.append(f"## Great Lakes ice ({date_str})")
+        if total is not None:
+            lines.append(f"- Basin-wide total: {total}%")
+        lines.append("")
+
+    if result.get("sun_moon"):
+        sm = result["sun_moon"]
+        events = sm["events"]
+        lines.append(f"## Sun ({result['waypoints'][0]}, {sm['date']})")
+        for phen in ("Rise", "Set"):
+            if phen in events:
+                lines.append(f"- **{phen}:** {to_local(events[phen])}")
+        lines.append("")
+
     return "\n".join(lines)

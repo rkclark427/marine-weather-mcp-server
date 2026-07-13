@@ -1,0 +1,14 @@
+{
+  "table": {
+    "columnNames": ["time", "Superior", "Michigan", "Huron", "Erie", "Ontario", "St_Clair", "GL_Total"],
+    "columnTypes": ["String", "float", "float", "float", "float", "float", "float", "float"],
+    "columnUnits": ["UTC", "percent", "percent", "percent", "percent", "percent", "percent", "percent"],
+    "rows": [
+      ["2026-02-01T00:00:00Z", 47.27, 36.57, 72.09, 95.17, 35.48, 100, 54.61],
+      ["2026-02-02T00:00:00Z", 34.31, 33.33, 77.49, 95.33, 37.23, 100, 50.57],
+      ["2026-02-03T00:00:00Z", 33.62, 29.67, 66.98, 94.01, 33.68, 100, 46.61],
+      ["2026-02-04T00:00:00Z", 44.14, 29.5, 64.38, 94.31, 19.65, 100, 48.79],
+      ["2026-02-05T00:00:00Z", 52.72, 36.46, 74.84, 95.95, 19.7, 99.65, 56.14]
+    ]
+  }
+}

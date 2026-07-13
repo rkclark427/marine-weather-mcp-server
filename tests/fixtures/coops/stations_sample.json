@@ -1,0 +1,26 @@
+[
+  {
+    "id": "9087057",
+    "name": "Milwaukee",
+    "lat": 43.002,
+    "lng": -87.8876,
+    "greatlakes": true,
+    "tidal": false
+  },
+  {
+    "id": "9087044",
+    "name": "Calumet Harbor",
+    "lat": 41.72972,
+    "lng": -87.53833,
+    "greatlakes": true,
+    "tidal": false
+  },
+  {
+    "id": "8410140",
+    "name": "Eastport",
+    "lat": 44.90461,
+    "lng": -66.98289,
+    "greatlakes": false,
+    "tidal": true
+  }
+]
