@@ -18,7 +18,10 @@
       "Bash(curl -s \"https://www.ndbc.noaa.gov/station_page.php?station=45007\" --max-time 15)",
       "Bash(curl -s \"https://marine-api.open-meteo.com/v1/marine?latitude=42.6&longitude=-87.7&hourly=wave_height,wave_direction,wave_period&timezone=America%2FChicago\" -o tests/fixtures/openmeteo/marine_lake_michigan.json -w \"HTTP %{http_code}\\\\n\" --max-time 15)",
       "Bash(curl -s \"https://api.open-meteo.com/v1/forecast?latitude=42.6&longitude=-87.7&hourly=wind_speed_10m,wind_gusts_10m,wind_direction_10m&models=ecmwf_ifs025,gfs_seamless&wind_speed_unit=kn&timezone=America%2FChicago&forecast_hours=6\" -o tests/fixtures/openmeteo/multimodel_forecast.json -w \"HTTP %{http_code}\\\\n\" --max-time 15)",
-      "Bash(.venv/Scripts/python.exe -c ' *)"
+      "Bash(.venv/Scripts/python.exe -c ' *)",
+      "mcp__marine_wx__marine_list_registry",
+      "mcp__marine_wx__marine_route_outlook",
+      "mcp__marine_wx__marine_get_navigation_discrepancies"
     ]
   }
 }
