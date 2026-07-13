@@ -12,6 +12,8 @@ from datetime import datetime, timedelta
 from typing import Any
 from zoneinfo import ZoneInfo
 
+from marine_wx_mcp.sources.navcen import light_range_nm
+
 LOCAL_TZ = ZoneInfo("America/Chicago")
 
 _DURATION_RE = re.compile(r"P(?:(\d+)D)?T?(?:(\d+)H)?(?:(\d+)M)?")
@@ -43,8 +45,8 @@ def format_alerts(zone_ids: list[str], features: list[dict[str, Any]]) -> str:
 def format_zone_forecast(zone_id: str, zone_data: dict[str, Any] | None) -> str:
     if zone_data is None:
         return (
-            f"No nearshore forecast text found for zone {zone_id} in the latest "
-            "product (it may not be covered by this office's NSH product)."
+            f"No marine zone forecast text found for zone {zone_id} in the latest "
+            "product (it may not be covered by this office's NSH/CWF product)."
         )
     lines = [
         f"## {zone_id} - {zone_data['area']}",
@@ -52,6 +54,18 @@ def format_zone_forecast(zone_id: str, zone_data: dict[str, Any] | None) -> str:
     ]
     for period, text in zone_data["periods"].items():
         lines.append(f"**{period}:** {text}")
+    return "\n".join(lines)
+
+
+def format_offshore_forecast(location: str, areas: dict[str, dict[str, Any]]) -> str:
+    if not areas:
+        return f"No offshore forecast areas found for location {location}."
+    lines = [f"## Offshore Forecast - {location}\n"]
+    for name, data in areas.items():
+        lines.append(f"### {name}")
+        for period, text in data["periods"].items():
+            lines.append(f"**{period}:** {text}")
+        lines.append("")
     return "\n".join(lines)
 
 
@@ -203,4 +217,106 @@ def format_sun_times(place_or_coords: str, result: dict[str, Any]) -> str:
         "\n*Civil twilight only - not nautical or astronomical twilight; "
         "not suitable for celestial navigation sight timing.*"
     )
+    return "\n".join(lines)
+
+
+def _epoch_ms_to_local(epoch_ms: int | None) -> str:
+    if epoch_ms is None:
+        return "unknown"
+    return datetime.fromtimestamp(epoch_ms / 1000, tz=LOCAL_TZ).strftime("%a %Y-%m-%d %I:%M %p %Z")
+
+
+def format_aids_to_navigation(place_or_coords: str, radius_nm: float, aids: list[dict[str, Any]]) -> str:
+    if not aids:
+        return f"No charted aids to navigation within {radius_nm}nm of {place_or_coords}."
+
+    lines = [f"## Aids to navigation within {radius_nm}nm of {place_or_coords}\n"]
+    for aid in aids:
+        p = aid["properties"]
+        bits = [f"**{p.get('NAME', 'Unnamed')}** ({aid['_distance_nm']}nm)"]
+        if p.get("LIGHT_CHAR"):
+            bits.append(p["LIGHT_CHAR"])
+        rng = light_range_nm(p)
+        if rng is not None:
+            bits.append(f"range {rng}nm")
+        if p.get("COLOR"):
+            bits.append(f"color {p['COLOR']}")
+        if p.get("STRUCTURE_TYPE"):
+            bits.append(p["STRUCTURE_TYPE"])
+        if p.get("SEASON_FROM") or p.get("SEASON_TO"):
+            bits.append(f"seasonal ({p.get('SEASON_FROM', '?')}-{p.get('SEASON_TO', '?')})")
+        if p.get("INACTIVE") == "1":
+            bits.append("**INACTIVE**")
+        line = " - ".join(bits)
+        if p.get("REMARK"):
+            line += f"\n  *{p['REMARK']}*"
+        lines.append(line)
+    return "\n".join(lines)
+
+
+_DISCREPANCY_LAYER_LABELS = {
+    "federal_aid": "Federal aid discrepancies",
+    "private_aid": "Private aid discrepancies",
+    "temporary_change": "Temporary changes",
+    "hazard": "Hazards to navigation",
+    "marine_event": "Marine events",
+}
+
+
+def format_navigation_discrepancies(
+    place_or_coords: str, radius_nm: float, layers: dict[str, list[dict[str, Any]]]
+) -> str:
+    total = sum(len(v) for v in layers.values())
+    if total == 0:
+        return (
+            f"No navigation discrepancies, hazards, or marine events reported "
+            f"within {radius_nm}nm of {place_or_coords}."
+        )
+
+    lines = [f"## Navigation discrepancies/hazards within {radius_nm}nm of {place_or_coords}\n"]
+    for key in ("federal_aid", "private_aid", "temporary_change", "hazard", "marine_event"):
+        items = layers.get(key, [])
+        if not items:
+            continue
+        lines.append(f"### {_DISCREPANCY_LAYER_LABELS[key]}")
+        for item in items:
+            p = item["properties"]
+            if key in ("hazard", "marine_event"):
+                until = _epoch_ms_to_local(p.get("END_DATE"))
+                lines.append(
+                    f"- **{p.get('TYPE', p.get('TITLE', 'Untitled'))}** "
+                    f"({item['_distance_nm']}nm) - {p.get('WATERWAY_NAME', '')} - "
+                    f"status: {p.get('STATUS', 'unknown')} - through {until}"
+                )
+            else:
+                status = p.get("DISCREP_STATUS") or p.get("TC_STATUS") or "unknown"
+                reported = _epoch_ms_to_local(p.get("CREATE_DATE"))
+                lines.append(
+                    f"- **{p.get('NAME', 'Unnamed')}** ({item['_distance_nm']}nm) - "
+                    f"{status} - {p.get('WATERWAY_NAME', '')} - reported {reported}"
+                )
+        lines.append("")
+    return "\n".join(lines)
+
+
+def format_coast_pilot_search(query: str, results: list[dict[str, Any]]) -> str:
+    if not results:
+        return (
+            f'No Coast Pilot results for "{query}". Try a different term, or run '
+            "scripts/ingest_coast_pilot.py if the index hasn't been built yet."
+        )
+
+    lines = [f'## Coast Pilot search: "{query}"\n']
+    for r in results:
+        place = r["harbor_heading"] or "(unattributed)"
+        if r["subsection_heading"]:
+            place += f" - {r['subsection_heading']}"
+        cite = f"Vol. {r['volume']}"
+        if r.get("chapter") is not None:
+            cite += f", Ch. {r['chapter']}"
+        cite += f" ({r['paragraph_number']})"
+        distance = f" - {r['_distance_nm']}nm away" if "_distance_nm" in r else ""
+        lines.append(f"**{place}** [{cite}]{distance}")
+        lines.append(r["text"])
+        lines.append("")
     return "\n".join(lines)

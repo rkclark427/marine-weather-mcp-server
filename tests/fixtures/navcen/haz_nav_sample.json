@@ -1,0 +1,105 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "id": 58,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -74.29487999999998,
+          39.47413000000006
+        ]
+      },
+      "properties": {
+        "ESRI_OID": 58,
+        "MSI_UID": 58,
+        "ATU": 5,
+        "TITLE": "Sector Delaware Bay, Submerged Land Act (SLA) - Little Egg Inlet/General/Hazards To Navigation/Shoaling Reported",
+        "STATUS": "Approved",
+        "MSI_GROUP": "General",
+        "SUB_CATEGORY": "Hazards To Navigation",
+        "TYPE": "Shoaling Reported",
+        "WTRW_UID": 100116382910,
+        "MRN": "urn:mrn:iala:wwy:us:navIV:dis5:secdelbayexcecozon:secdelbaytersea:secdelbaysublanact:litegginl",
+        "WATERWAY_NAME": "Little Egg Inlet",
+        "CREATE_DATE": 1722529289000,
+        "MODIFIED_DATE": 1760962225000,
+        "BEGIN_DATE": 1722470400000,
+        "END_DATE": 1877990399000,
+        "DESCRIPTION": "General/Hazards To Navigation/Shoaling Reported\n\nFrom: 2024-08-01 To: 2029-07-05\n\nLocation:\n39-28-26.868N/074-17-41.568W\n\nShoaling has been observed between Little Egg Inlet Buoy 1 (LLNR 1100) and Little Egg Inlet Buoy 4 (LLNR 1115). Shoaling has encroached channel ward in between the aids. Minimal depths observed at low tide 4ft. Inlet is susceptible to shifting shoaling at all times.\nMSI # 58.",
+        "COORDINATES_JSON": "{\"type\":\"Point\",\"coordinates\":[-74.29488,39.47413]}",
+        "COORDINATES_TYPE": "Point",
+        "DECIMAL_LONGITUDE": -74.29487999999999,
+        "DECIMAL_LATITUDE": 39.474129999999995
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 61,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -75.10011999999995,
+          38.682510000000036
+        ]
+      },
+      "properties": {
+        "ESRI_OID": 61,
+        "MSI_UID": 61,
+        "ATU": 5,
+        "TITLE": "Indian River Inlet - Rehoboth Bay/General/Hazards To Navigation/Shoaling Reported",
+        "STATUS": "Approved",
+        "MSI_GROUP": "General",
+        "SUB_CATEGORY": "Hazards To Navigation",
+        "TYPE": "Shoaling Reported",
+        "WTRW_UID": 100117653883,
+        "MRN": "urn:mrn:iala:wwy:us:navIV:dis5:secdelbayexcecozon:secdelbaytersea:secdelbaysublanact:indrivinl:rehbay",
+        "WATERWAY_NAME": "Rehoboth Bay",
+        "CREATE_DATE": 1722531484000,
+        "MODIFIED_DATE": 1756135687000,
+        "BEGIN_DATE": 1722470400000,
+        "END_DATE": 1826150399000,
+        "DESCRIPTION": "General/Hazards To Navigation/Shoaling Reported\n\nFrom: 2024-08-01 To: 2027-11-13\n\nLocation:\n38.68251\u00b0 N / 75.10012\u00b0 W\nShoaling observed from entrance to Rehoboth-Lewis canal south to Rehoboth Bay Channel Buoy 3 (LLNR 2100), depths 2-4 feet at mean low water. ",
+        "COORDINATES_JSON": "{\"type\":\"Point\",\"coordinates\":[-75.10012,38.68251]}",
+        "COORDINATES_TYPE": "Point",
+        "DECIMAL_LONGITUDE": -75.10011999999999,
+        "DECIMAL_LATITUDE": 38.68251
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 85,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -75.72672999999998,
+          37.54048000000006
+        ]
+      },
+      "properties": {
+        "ESRI_OID": 85,
+        "MSI_UID": 85,
+        "ATU": 5,
+        "TITLE": "Great Machipongo Inlet - Quinby Creek/General/Hazards To Navigation/Shoaling Reported",
+        "STATUS": "Approved",
+        "MSI_GROUP": "General",
+        "SUB_CATEGORY": "Hazards To Navigation",
+        "TYPE": "Shoaling Reported",
+        "WTRW_UID": 100116383183,
+        "MRN": "urn:mrn:iala:wwy:us:navIV:dis5:secvirexcecozon:secvirtersea:secvirsublanact:gremacinl:quicre",
+        "WATERWAY_NAME": "Quinby Creek",
+        "CREATE_DATE": 1723557527000,
+        "MODIFIED_DATE": 1756135567000,
+        "BEGIN_DATE": 1723507200000,
+        "END_DATE": 1879027199000,
+        "DESCRIPTION": "General/Hazards To Navigation/Shoaling Reported\n\nFrom: 2024-08-13 To: 2029-07-17\n\nLocation:\n37.54048\u00b0 N / 75.72673\u00b0 W\nNorfolk District Army Corp of Engineers Survey of Quinby Creek; dated 11 Feb 2020, indicated significant shoaling with least depth of 6.0\u2019MLLW to 1.2\u2019MLLW at Quinby Creek Warning Daybeacon J (LLNR 6785). ",
+        "COORDINATES_JSON": "{\"type\":\"Point\",\"coordinates\":[-75.72673,37.54048]}",
+        "COORDINATES_TYPE": "Point",
+        "DECIMAL_LONGITUDE": -75.72673,
+        "DECIMAL_LATITUDE": 37.540479999999995
+      }
+    }
+  ],
+  "properties": {}
+}

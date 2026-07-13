@@ -5,19 +5,8 @@ from marine_wx_mcp.registry import (
     dump_registry,
     get_port,
     get_route,
-    office_for_zone,
     zones_for_place,
 )
-
-
-def test_office_for_zone():
-    assert office_for_zone("LMZ646") == "MKX"
-    assert office_for_zone("LMZ741") == "LOT"
-
-
-def test_office_for_zone_unknown_raises():
-    with pytest.raises(RegistryError):
-        office_for_zone("LMZ999")
 
 
 def test_get_port_by_exact_name():

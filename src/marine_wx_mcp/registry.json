@@ -3,14 +3,6 @@
     "lake_michigan_west": {
       "timezone": "America/Chicago",
       "nws_offices": ["MKX", "LOT"],
-      "zone_offices": {
-        "LMZ643": "MKX",
-        "LMZ644": "MKX",
-        "LMZ645": "MKX",
-        "LMZ646": "MKX",
-        "LMZ740": "LOT",
-        "LMZ741": "LOT"
-      },
       "ports": {
         "waukegan": {
           "lat": 42.360,

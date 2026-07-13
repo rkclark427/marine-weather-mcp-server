@@ -85,17 +85,6 @@ def zones_for_place(name: str, region_key: str = "lake_michigan_west") -> list[s
     )
 
 
-def office_for_zone(zone_id: str, region_key: str = "lake_michigan_west") -> str:
-    region = get_region(region_key)
-    zone_offices = region.get("zone_offices", {})
-    if zone_id not in zone_offices:
-        raise RegistryError(
-            f"No known NWS office for zone '{zone_id}'. Known zones: "
-            f"{', '.join(sorted(zone_offices))}"
-        )
-    return zone_offices[zone_id]
-
-
 def dump_registry(region_key: str | None = None) -> dict[str, Any]:
     """Full registry dump (or a single region) for marine_list_registry."""
     regions = list_regions()

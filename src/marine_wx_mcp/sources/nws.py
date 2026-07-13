@@ -3,15 +3,47 @@
 Gotchas discovered during build-time verification (2026-07-06):
 - /zones/forecast/{zone}/forecast returns 404 "Marine Forecast Not
   Supported" for every LMZ zone tried. Marine zone forecasts must
-  come from the Nearshore Marine Forecast (NSH) text product instead
-  (get_nearshore_forecast below).
+  come from a text product instead (Nearshore/Coastal Waters Forecast -
+  get_marine_zone_forecast below).
 - /points/{lat},{lon} resolves to the nearest LAND zone, even for
   harbor coordinates sitting right on the shoreline. It is only
   useful for grid metadata (gridId/gridX/gridY), not marine zone
-  lookup - use the registry's static zone list for that.
+  lookup.
 - Gridpoint values (waveHeight, wavePeriod, etc.) use RFC 3339
   duration validTime intervals like "2026-07-06T07:00:00+00:00/PT2H",
   not point timestamps - each entry covers a span, not an instant.
+
+Gotchas discovered generalizing marine zone forecasts nationwide
+(2026-07-13):
+- /zones/marine/{zoneId} returns the responsible office directly
+  (awipsLocationIdentifier/cwa) for ANY marine zone - no need to
+  hardcode a zone->office table. get_marine_zone_office uses this.
+- Coastal marine zone text products come in two product types with
+  IDENTICAL formatting (UGC "ZONE###-" header, "$$"-delimited blocks,
+  ".PERIOD...text" entries) - Nearshore Marine Forecast (NSH), issued
+  by exactly 11 Great Lakes offices (confirmed live: APX, BUF, CLE,
+  DLH, DTX, GRB, GRR, IWX, LOT, MKX, MQT), and Coastal Waters Forecast
+  (CWF) issued by every other coastal office nationwide - confirmed
+  these sets are mutually exclusive. get_marine_zone_forecast tries NSH
+  then falls back to CWF, reusing the same parser for both.
+- Offshore (OFF, >~60nm to the Gulf Stream/shelf break) and High Seas
+  (HSF, ocean basins) forecasts are a genuinely different tier, issued
+  by national centers (Ocean Prediction Center/NHC-TAFB) under special
+  location codes (e.g. "N01", "AT1"), NOT local WFO office codes - and
+  a marine zone's own /zones/marine metadata does NOT reliably map to
+  these codes (confirmed live: offshore zone AMZ040's
+  awipsLocationIdentifier is "NH2", not a location code that appears in
+  OFF's own /products/types/OFF/locations list). Callers must supply
+  the OPC/TAFB location code directly rather than a UGC zone_id - see
+  get_offshore_forecast/get_high_seas_forecast.
+- OFF products have no UGC zone codes or "$$" delimiters at all -
+  sub-areas are just a bare Title Case name line immediately followed
+  by ".PERIOD..." entries, confirmed live and consistent through a full
+  product with no explicit terminator (parse_off_product).
+- HSF products are ocean-basin-wide narratives (ALL CAPS, embedded
+  lat/lon polygon boundaries, ice/tropical cyclone caveats) with no
+  zone-style subdivision at all - returned as cleaned full text rather
+  than parsed into sub-areas.
 """
 
 from __future__ import annotations
@@ -74,6 +106,24 @@ async def get_active_alerts(zone_ids: list[str]) -> list[dict[str, Any]]:
     return data.get("features", [])
 
 
+async def get_marine_zone_office(zone_id: str) -> str:
+    """The WFO office code responsible for any NWS marine zone (coastal/Great Lakes).
+
+    Works nationwide via live zone metadata - no hardcoded zone list.
+    Does NOT resolve offshore/high-seas codes (see module docstring).
+    """
+    data = await _get(f"/zones/marine/{zone_id}")
+    props = data["properties"]
+    office = props.get("awipsLocationIdentifier") or (props.get("cwa") or [None])[0]
+    if not office:
+        raise NWSError(
+            f"No responsible office found for marine zone '{zone_id}'. It may be an "
+            "offshore/high-seas zone - try marine_get_offshore_forecast or "
+            "marine_get_high_seas_forecast instead."
+        )
+    return office
+
+
 async def get_point_metadata(lat: float, lon: float) -> dict[str, Any]:
     """Grid metadata for a coordinate: gridId/gridX/gridY, land forecastZone, city."""
     data = await _get(f"/points/{lat},{lon}")
@@ -114,8 +164,9 @@ _PERIOD_RE = re.compile(
 )
 
 
-def parse_nsh_product(text: str) -> dict[str, dict[str, Any]]:
-    """Parse a Nearshore Marine Forecast text product into per-zone periods.
+def parse_zone_forecast_product(text: str) -> dict[str, dict[str, Any]]:
+    """Parse a coastal marine zone text product (NSH or CWF - identical format)
+    into per-zone periods.
 
     Returns {zone_id: {"area": str, "issued": str, "periods": {name: text}}}.
     """
@@ -141,21 +192,24 @@ def parse_nsh_product(text: str) -> dict[str, dict[str, Any]]:
     return zones
 
 
-async def get_nearshore_forecast(office: str) -> dict[str, dict[str, Any]]:
-    """Latest Nearshore Marine Forecast (NSH) for an office, parsed by zone.
+async def get_marine_zone_forecast(office: str) -> tuple[str, dict[str, dict[str, Any]]]:
+    """Latest coastal marine zone forecast for an office, parsed by zone.
 
-    This is the marine zone forecast tool's real data source - see the
-    module docstring for why /zones/forecast/{zone}/forecast can't be
-    used directly.
+    Tries NSH (Great Lakes) first, falls back to CWF (everywhere else) -
+    the two product types are mutually exclusive by office, see module
+    docstring. Returns (product_type_used, {zone_id: {...}}). This is
+    the zone forecast tool's real data source - see the module docstring
+    for why /zones/forecast/{zone}/forecast can't be used directly.
     """
-    product_id = await _latest_product_id("NSH", office)
-    if product_id is None:
-        raise NWSError(
-            f"No Nearshore Marine Forecast (NSH) product found for office {office}. "
-            "Try the NWS forecast discussion (.MARINE section) as a fallback."
-        )
-    text = await _product_text(product_id)
-    return parse_nsh_product(text)
+    for product_type in ("NSH", "CWF"):
+        product_id = await _latest_product_id(product_type, office)
+        if product_id is not None:
+            text = await _product_text(product_id)
+            return product_type, parse_zone_forecast_product(text)
+    raise NWSError(
+        f"No coastal marine zone forecast (NSH or CWF) found for office {office}. "
+        "Try the NWS forecast discussion (.MARINE section) as a fallback."
+    )
 
 
 def _extract_marine_section(text: str) -> str:
@@ -174,3 +228,81 @@ async def get_forecast_discussion(office: str, section: str = "marine") -> str:
     if section == "marine":
         return _extract_marine_section(text)
     return text
+
+
+# Offshore Forecast (OFF) locations confirmed live 2026-07-13. AER/AFG/AJK/
+# ALU/HFO are Alaska/Hawaii WFOs; N01-N15/NT1-NT5/PZ5-PZ8 are Ocean
+# Prediction Center NAVTEX-style area codes with no human-readable name in
+# the API itself (the product text names its own coverage area).
+OFFSHORE_LOCATIONS = [
+    "AER", "AFG", "AJK", "ALU", "HFO",
+    "N01", "N02", "N03", "N04", "N05", "N06", "N07", "N08", "N09", "N10",
+    "N11", "N12", "N13", "N14", "N15",
+    "NT1", "NT2", "NT3", "NT4", "NT5",
+    "PZ5", "PZ6", "PZ7", "PZ8",
+]
+
+# High Seas Forecast (HSF) area codes confirmed live 2026-07-13 - ocean
+# basins (METAREAs), not WFO offices: Atlantic 1/2, Eastern Pacific 1/2,
+# Eastern Pacific Islands, North Pacific.
+HIGH_SEAS_AREAS = ["AT1", "AT2", "EP1", "EP2", "EPI", "NP"]
+
+_OFF_AREA_HEADER_RE = re.compile(
+    r"^([A-Z][A-Za-z0-9 ,\-'/]{2,80})\s*$\n+(?=\.[A-Z])", re.MULTILINE
+)
+
+
+def parse_off_product(text: str) -> dict[str, dict[str, Any]]:
+    """Parse an Offshore Forecast (OFF) product into named sub-area -> periods.
+
+    Unlike coastal zone products, OFF has no UGC zone codes or "$$"
+    delimiters - sub-areas are just a bare name line immediately
+    followed by ".PERIOD..." entries, confirmed live (see module
+    docstring). Returns {area_name: {"periods": {name: text}}}.
+    """
+    matches = list(_OFF_AREA_HEADER_RE.finditer(text))
+    areas: dict[str, dict[str, Any]] = {}
+    for i, m in enumerate(matches):
+        name = m.group(1).strip()
+        start = m.end()
+        end = matches[i + 1].start() if i + 1 < len(matches) else len(text)
+        body = text[start:end]
+        periods = {
+            pname.strip(): " ".join(body.split())
+            for pname, body in _PERIOD_RE.findall(body)
+        }
+        areas[name] = {"periods": periods}
+    return areas
+
+
+async def get_offshore_forecast(location: str) -> dict[str, dict[str, Any]]:
+    """Latest Offshore Forecast (OFF) for an OPC/WFO location code, parsed by sub-area.
+
+    `location` is an Ocean Prediction Center area code or Alaska/Hawaii
+    WFO code (see OFFSHORE_LOCATIONS), not a UGC marine zone_id - see
+    module docstring for why zone_id doesn't reliably map to these.
+    """
+    product_id = await _latest_product_id("OFF", location)
+    if product_id is None:
+        raise NWSError(
+            f"No Offshore Forecast (OFF) found for location '{location}'. Valid "
+            f"locations: {', '.join(OFFSHORE_LOCATIONS)}."
+        )
+    text = await _product_text(product_id)
+    return parse_off_product(text)
+
+
+async def get_high_seas_forecast(area: str) -> str:
+    """Latest High Seas Forecast (HSF) full text for an ocean basin/METAREA code.
+
+    Returned as cleaned full text rather than parsed into sub-areas -
+    HSF products are basin-wide narratives with no zone-style
+    subdivision (see module docstring).
+    """
+    product_id = await _latest_product_id("HSF", area)
+    if product_id is None:
+        raise NWSError(
+            f"No High Seas Forecast (HSF) found for area '{area}'. Valid areas: "
+            f"{', '.join(HIGH_SEAS_AREAS)}."
+        )
+    return await _product_text(product_id)

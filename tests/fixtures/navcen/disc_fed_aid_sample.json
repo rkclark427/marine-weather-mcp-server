@@ -1,0 +1,196 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "id": 305864,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -87.76704999999998,
+          42.72586000000007
+        ]
+      },
+      "properties": {
+        "ESRI_OID": 305864,
+        "LNM_UID": 100119600515,
+        "ATON_GROUP": "DISCREPANCIES - FEDERAL AIDS",
+        "LLNR": 20485,
+        "NAME": "Racine Reef West End Lighted Buoy 1",
+        "DISCREP_CORR_STATUS": "Correction Status Unreported",
+        "DISCREP_STATUS": "LT EXT",
+        "ATU": 9,
+        "AID_NUMBER": 200100518371,
+        "MSI_STATUS": "Approved",
+        "ATON_UID": 100119600515,
+        "WTRW_UID": 100116386190,
+        "WATERWAY_NAME": "Racine",
+        "MRN": "urn:mrn:iala:wwy:us:navIV:dis9:stlawsea:lakont:lowniariv:niariv:lakeri:wesendoflakeri:detriv:lakstcla:stclariv:lakhur:lakmic:rac",
+        "AID_TYPE": "FD",
+        "AID_SUBTYPE": "FL",
+        "COLOR": "G",
+        "DESCRIPTION_TYPE": "LB",
+        "CREATE_DATE": 1779895419000,
+        "BNM_NUM": null,
+        "ASSIGNED_LONGITUDE": "087-46-01.391W",
+        "ASSIGNED_LATITUDE": "42-43-33.088N",
+        "DECIMAL_LONGITUDE": -87.76705,
+        "DECIMAL_LATITUDE": 42.72586
+      },
+      "_distance_nm": 8.5
+    },
+    {
+      "type": "Feature",
+      "id": 305865,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -87.73319999999995,
+          42.72778000000005
+        ]
+      },
+      "properties": {
+        "ESRI_OID": 305865,
+        "LNM_UID": 100119600516,
+        "ATON_GROUP": "DISCREPANCIES - FEDERAL AIDS",
+        "LLNR": 20483,
+        "NAME": "Racine Reef Lighted Buoy 18",
+        "DISCREP_CORR_STATUS": "Correction Status Unreported",
+        "DISCREP_STATUS": "LT EXT",
+        "ATU": 9,
+        "AID_NUMBER": 100118455973,
+        "MSI_STATUS": "Approved",
+        "ATON_UID": 100119600516,
+        "WTRW_UID": 100116386190,
+        "WATERWAY_NAME": "Racine",
+        "MRN": "urn:mrn:iala:wwy:us:navIV:dis9:stlawsea:lakont:lowniariv:niariv:lakeri:wesendoflakeri:detriv:lakstcla:stclariv:lakhur:lakmic:rac",
+        "AID_TYPE": "FD",
+        "AID_SUBTYPE": "FL",
+        "COLOR": "R",
+        "DESCRIPTION_TYPE": "LB",
+        "CREATE_DATE": 1779895520000,
+        "BNM_NUM": null,
+        "ASSIGNED_LONGITUDE": "087-43-59.526W",
+        "ASSIGNED_LATITUDE": "42-43-39.992N",
+        "DECIMAL_LONGITUDE": -87.73320000000001,
+        "DECIMAL_LATITUDE": 42.727779999999996
+      },
+      "_distance_nm": 9.0
+    },
+    {
+      "type": "Feature",
+      "id": 305208,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -87.72338999999994,
+          42.795390000000054
+        ]
+      },
+      "properties": {
+        "ESRI_OID": 305208,
+        "LNM_UID": 100119597677,
+        "ATON_GROUP": "DISCREPANCIES - FEDERAL AIDS",
+        "LLNR": 20610,
+        "NAME": "Wind Point North Shoal Lighted Buoy 14",
+        "DISCREP_CORR_STATUS": "Correction Status Unreported",
+        "DISCREP_STATUS": "LT EXT/OFF STATION",
+        "ATU": 9,
+        "AID_NUMBER": 200100518378,
+        "MSI_STATUS": "Approved",
+        "ATON_UID": 100119597677,
+        "WTRW_UID": 100116386215,
+        "WATERWAY_NAME": "PORT WASHINGTON TO WAUKEGAN",
+        "MRN": "urn:mrn:iala:wwy:us:navIV:dis9:stlawsea:lakont:lowniariv:niariv:lakeri:wesendoflakeri:detriv:lakstcla:stclariv:lakhur:lakmic:porwastowau",
+        "AID_TYPE": "FD",
+        "AID_SUBTYPE": "FL",
+        "COLOR": "R",
+        "DESCRIPTION_TYPE": "LB",
+        "CREATE_DATE": 1777463670000,
+        "BNM_NUM": null,
+        "ASSIGNED_LONGITUDE": "087-43-24.189W",
+        "ASSIGNED_LATITUDE": "42-47-43.414N",
+        "DECIMAL_LONGITUDE": -87.72339,
+        "DECIMAL_LATITUDE": 42.79539
+      },
+      "_distance_nm": 13.0
+    },
+    {
+      "type": "Feature",
+      "id": 305866,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -87.72338999999994,
+          42.795390000000054
+        ]
+      },
+      "properties": {
+        "ESRI_OID": 305866,
+        "LNM_UID": 100119600517,
+        "ATON_GROUP": "DISCREPANCIES - FEDERAL AIDS",
+        "LLNR": 20610,
+        "NAME": "Wind Point North Shoal Lighted Buoy 14",
+        "DISCREP_CORR_STATUS": "Correction Status Unreported",
+        "DISCREP_STATUS": "LT EXT",
+        "ATU": 9,
+        "AID_NUMBER": 200100518378,
+        "MSI_STATUS": "Approved",
+        "ATON_UID": 100119600517,
+        "WTRW_UID": 100116386215,
+        "WATERWAY_NAME": "PORT WASHINGTON TO WAUKEGAN",
+        "MRN": "urn:mrn:iala:wwy:us:navIV:dis9:stlawsea:lakont:lowniariv:niariv:lakeri:wesendoflakeri:detriv:lakstcla:stclariv:lakhur:lakmic:porwastowau",
+        "AID_TYPE": "FD",
+        "AID_SUBTYPE": "FL",
+        "COLOR": "R",
+        "DESCRIPTION_TYPE": "LB",
+        "CREATE_DATE": 1779895619000,
+        "BNM_NUM": null,
+        "ASSIGNED_LONGITUDE": "087-43-24.189W",
+        "ASSIGNED_LATITUDE": "42-47-43.414N",
+        "DECIMAL_LONGITUDE": -87.72339,
+        "DECIMAL_LATITUDE": 42.79539
+      },
+      "_distance_nm": 13.0
+    },
+    {
+      "type": "Feature",
+      "id": 305862,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -87.79800999999998,
+          42.36137000000008
+        ]
+      },
+      "properties": {
+        "ESRI_OID": 305862,
+        "LNM_UID": 100119600513,
+        "ATON_GROUP": "DISCREPANCIES - FEDERAL AIDS",
+        "LLNR": 20330,
+        "NAME": "Waukegan Shoals Lighted Buoy 3",
+        "DISCREP_CORR_STATUS": "Correction Status Unreported",
+        "DISCREP_STATUS": "LT EXT",
+        "ATU": 9,
+        "AID_NUMBER": 200100518358,
+        "MSI_STATUS": "Approved",
+        "ATON_UID": 100119600513,
+        "WTRW_UID": 100116386218,
+        "WATERWAY_NAME": "Waukegan",
+        "MRN": "urn:mrn:iala:wwy:us:navIV:dis9:stlawsea:lakont:lowniariv:niariv:lakeri:wesendoflakeri:detriv:lakstcla:stclariv:lakhur:lakmic:wau",
+        "AID_TYPE": "FD",
+        "AID_SUBTYPE": "FL",
+        "COLOR": "G",
+        "DESCRIPTION_TYPE": "LB",
+        "CREATE_DATE": 1779895171000,
+        "BNM_NUM": null,
+        "ASSIGNED_LONGITUDE": "087-47-52.851W",
+        "ASSIGNED_LATITUDE": "42-21-40.928N",
+        "DECIMAL_LONGITUDE": -87.79800999999999,
+        "DECIMAL_LATITUDE": 42.36137
+      },
+      "_distance_nm": 13.6
+    }
+  ],
+  "properties": {}
+}

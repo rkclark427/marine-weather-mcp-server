@@ -1,0 +1,196 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "id": 142161,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -87.77727999999996,
+          42.72858000000008
+        ]
+      },
+      "properties": {
+        "ESRI_OID": 142161,
+        "LNM_UID": 100119418814,
+        "ATON_GROUP": "DISCREPANCIES - PRIVATE AIDS",
+        "LLNR": 20470,
+        "NAME": "Racine Launch Basin Entrance Light",
+        "DISCREP_CORR_STATUS": "Correction Status Unreported",
+        "DISCREP_STATUS": "LT EXT",
+        "ATU": 9,
+        "AID_NUMBER": 200100563804,
+        "MSI_STATUS": null,
+        "ATON_UID": 100119418814,
+        "WTRW_UID": 100116386190,
+        "WATERWAY_NAME": "Racine",
+        "MRN": "urn:mrn:iala:wwy:us:navIV:dis9:stlawsea:lakont:lowniariv:niariv:lakeri:wesendoflakeri:detriv:lakstcla:stclariv:lakhur:lakmic:rac",
+        "AID_TYPE": "PA",
+        "AID_SUBTYPE": "FX",
+        "COLOR": "R",
+        "DESCRIPTION_TYPE": "LT",
+        "CREATE_DATE": 1716966554000,
+        "BNM_NUM": null,
+        "ASSIGNED_LONGITUDE": "087-46-38.200W",
+        "ASSIGNED_LATITUDE": "42-43-42.900N",
+        "DECIMAL_LONGITUDE": -87.77727999999999,
+        "DECIMAL_LATITUDE": 42.72858
+      },
+      "_distance_nm": 8.5
+    },
+    {
+      "type": "Feature",
+      "id": 142159,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -87.77746999999994,
+          42.733310000000074
+        ]
+      },
+      "properties": {
+        "ESRI_OID": 142159,
+        "LNM_UID": 100119418812,
+        "ATON_GROUP": "DISCREPANCIES - PRIVATE AIDS",
+        "LLNR": 20545,
+        "NAME": "Racine Harbor Light 13",
+        "DISCREP_CORR_STATUS": "Correction Status Unreported",
+        "DISCREP_STATUS": "LT EXT",
+        "ATU": 9,
+        "AID_NUMBER": 200100563835,
+        "MSI_STATUS": null,
+        "ATON_UID": 100119418812,
+        "WTRW_UID": 100116386190,
+        "WATERWAY_NAME": "Racine",
+        "MRN": "urn:mrn:iala:wwy:us:navIV:dis9:stlawsea:lakont:lowniariv:niariv:lakeri:wesendoflakeri:detriv:lakstcla:stclariv:lakhur:lakmic:rac",
+        "AID_TYPE": "PA",
+        "AID_SUBTYPE": "FX",
+        "COLOR": "G",
+        "DESCRIPTION_TYPE": "LT",
+        "CREATE_DATE": 1716966468000,
+        "BNM_NUM": null,
+        "ASSIGNED_LONGITUDE": "087-46-38.900W",
+        "ASSIGNED_LATITUDE": "42-43-59.900N",
+        "DECIMAL_LONGITUDE": -87.77747,
+        "DECIMAL_LATITUDE": 42.733309999999996
+      },
+      "_distance_nm": 8.8
+    },
+    {
+      "type": "Feature",
+      "id": 143104,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -87.77055999999999,
+          42.733610000000056
+        ]
+      },
+      "properties": {
+        "ESRI_OID": 143104,
+        "LNM_UID": 100119424505,
+        "ATON_GROUP": "DISCREPANCIES - PRIVATE AIDS",
+        "LLNR": 20490,
+        "NAME": "Racine East Harbor Entrance Light 2",
+        "DISCREP_CORR_STATUS": "Correction Status Unreported",
+        "DISCREP_STATUS": "LT EXT",
+        "ATU": 9,
+        "AID_NUMBER": 200100563812,
+        "MSI_STATUS": null,
+        "ATON_UID": 100119424505,
+        "WTRW_UID": 100116386190,
+        "WATERWAY_NAME": "Racine",
+        "MRN": "urn:mrn:iala:wwy:us:navIV:dis9:stlawsea:lakont:lowniariv:niariv:lakeri:wesendoflakeri:detriv:lakstcla:stclariv:lakhur:lakmic:rac",
+        "AID_TYPE": "PA",
+        "AID_SUBTYPE": "FX",
+        "COLOR": "R",
+        "DESCRIPTION_TYPE": "LTMA",
+        "CREATE_DATE": 1720601533000,
+        "BNM_NUM": null,
+        "ASSIGNED_LONGITUDE": "087-46-14.000W",
+        "ASSIGNED_LATITUDE": "42-44-01.000N",
+        "DECIMAL_LONGITUDE": -87.77055999999999,
+        "DECIMAL_LATITUDE": 42.73361
+      },
+      "_distance_nm": 8.9
+    },
+    {
+      "type": "Feature",
+      "id": 306844,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -87.77557999999999,
+          42.73383000000007
+        ]
+      },
+      "properties": {
+        "ESRI_OID": 306844,
+        "LNM_UID": 100119605350,
+        "ATON_GROUP": "DISCREPANCIES - PRIVATE AIDS",
+        "LLNR": 20515,
+        "NAME": "Racine Harbor Light 9",
+        "DISCREP_CORR_STATUS": "Correction Status Unreported",
+        "DISCREP_STATUS": "LT EXT",
+        "ATU": 9,
+        "AID_NUMBER": 200100563824,
+        "MSI_STATUS": "Approved",
+        "ATON_UID": 100119605350,
+        "WTRW_UID": 100116386190,
+        "WATERWAY_NAME": "Racine",
+        "MRN": "urn:mrn:iala:wwy:us:navIV:dis9:stlawsea:lakont:lowniariv:niariv:lakeri:wesendoflakeri:detriv:lakstcla:stclariv:lakhur:lakmic:rac",
+        "AID_TYPE": "PA",
+        "AID_SUBTYPE": "FX",
+        "COLOR": "G",
+        "DESCRIPTION_TYPE": "LT",
+        "CREATE_DATE": 1783685329000,
+        "BNM_NUM": null,
+        "ASSIGNED_LONGITUDE": "087-46-32.100W",
+        "ASSIGNED_LATITUDE": "42-44-01.800N",
+        "DECIMAL_LONGITUDE": -87.77557999999999,
+        "DECIMAL_LATITUDE": 42.73383
+      },
+      "_distance_nm": 8.9
+    },
+    {
+      "type": "Feature",
+      "id": 306847,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -87.77721999999994,
+          42.73472000000004
+        ]
+      },
+      "properties": {
+        "ESRI_OID": 306847,
+        "LNM_UID": 100119605353,
+        "ATON_GROUP": "DISCREPANCIES - PRIVATE AIDS",
+        "LLNR": 20555,
+        "NAME": "Racine Yacht Club Channel Lighted Buoy 2",
+        "DISCREP_CORR_STATUS": "Correction Status Unreported",
+        "DISCREP_STATUS": "MISSING",
+        "ATU": 9,
+        "AID_NUMBER": 200100563843,
+        "MSI_STATUS": "Approved",
+        "ATON_UID": 100119605353,
+        "WTRW_UID": 100116386190,
+        "WATERWAY_NAME": "Racine",
+        "MRN": "urn:mrn:iala:wwy:us:navIV:dis9:stlawsea:lakont:lowniariv:niariv:lakeri:wesendoflakeri:detriv:lakstcla:stclariv:lakhur:lakmic:rac",
+        "AID_TYPE": "PA",
+        "AID_SUBTYPE": "FL",
+        "COLOR": "R",
+        "DESCRIPTION_TYPE": "LB",
+        "CREATE_DATE": 1783685544000,
+        "BNM_NUM": null,
+        "ASSIGNED_LONGITUDE": "087-46-38.000W",
+        "ASSIGNED_LATITUDE": "42-44-05.000N",
+        "DECIMAL_LONGITUDE": -87.77722,
+        "DECIMAL_LATITUDE": 42.734719999999996
+      },
+      "_distance_nm": 8.9
+    }
+  ],
+  "properties": {}
+}

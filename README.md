@@ -1,9 +1,13 @@
 # marine_wx_mcp
 
 Local MCP server giving Claude direct, structured access to marine weather
-data for Lake Michigan (Waukegan–Kenosha–Racine–Milwaukee–Chicago) sailing
-passage planning. Built to replace unreliable web-fetch/cached-snippet
-lookups with live calls to api.weather.gov, NDBC, and Open-Meteo.
+and navigation data - nationwide. Every tool accepts a coordinate, NDBC
+station ID, or NWS zone/location code directly; the registry (Lake
+Michigan west - Waukegan–Kenosha–Racine–Milwaukee–Chicago - today) just
+adds a `place` shorthand for named ports, and can grow to cover other
+regions by adding entries to `registry.json`. Built to replace
+unreliable web-fetch/cached-snippet lookups with live/local structured
+data instead.
 
 ## Install
 
@@ -31,6 +35,22 @@ Tests run offline against fixtures in `tests/fixtures/` - no network needed.
 
 Hits every real data source once and prints formatted output for a quick
 eyeball check. Requires network access.
+
+## Coast Pilot search setup (one-time)
+
+`marine_search_coast_pilot` needs a local search index that isn't built
+automatically - run once (or whenever you want fresh data):
+
+```
+.venv\Scripts\python.exe scripts\ingest_coast_pilot.py
+```
+
+Downloads all 10 U.S. Coast Pilot volumes (~77MB total, nationwide -
+Atlantic, Gulf, Great Lakes, Pacific, Alaska, Hawaii, Puerto Rico/USVI),
+parses them, and writes a SQLite+FTS5 index to
+`~/.marine_wx_mcp_cache/coast_pilot/coast_pilot.db`. Takes several
+minutes; requires network access. Every run is a full rebuild - see the
+script's docstring before passing specific volume numbers to it.
 
 ## Claude Desktop registration
 
@@ -61,12 +81,17 @@ See [CLAUDE.md](CLAUDE.md) for the full tool list, data source gotchas, and
 verification status. Quick summary:
 
 - `marine_get_alerts` - active marine alerts (Small Craft Advisory, etc.)
-- `marine_get_zone_forecast` - nearshore wind/wave forecast by LMZ zone
+- `marine_get_zone_forecast` - coastal/Great Lakes wind/wave forecast for any US marine zone (nationwide)
+- `marine_get_offshore_forecast` - Offshore Forecast (OFF), the ~60nm-and-beyond tier
+- `marine_get_high_seas_forecast` - High Seas Forecast (HSF), ocean-basin-wide
 - `marine_get_buoy_obs` - latest NDBC buoy/station observations
 - `marine_get_point_forecast` - NWS gridpoint hourly forecast for a coordinate/place
 - `marine_get_forecast_discussion` - latest Area Forecast Discussion (.MARINE section)
 - `marine_get_model_forecast` - Open-Meteo ECMWF vs GFS wind comparison
 - `marine_get_sun_times` - sunrise/transit/sunset + civil twilight for a coordinate/place/date
+- `marine_get_aids_to_navigation` - charted Light List entries near a coordinate/place
+- `marine_get_navigation_discrepancies` - live aid outages, hazards, temporary changes, marine events near a coordinate/place
+- `marine_search_coast_pilot` - full-text search over all 10 U.S. Coast Pilot volumes (nationwide; needs one-time ingest, see above)
 - `marine_list_registry` - dump known ports/zones/stations/routes
 - `marine_get_windy_forecast` - Windy Point Forecast (v2 roadmap, inert without a key)
 

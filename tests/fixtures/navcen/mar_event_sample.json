@@ -1,0 +1,72 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "id": 13200,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -157.84555999999998,
+          21.28147000000007
+        ]
+      },
+      "properties": {
+        "ESRI_OID": 13200,
+        "MSI_UID": 13200,
+        "ATU": 14,
+        "TITLE": "Sector Honolulu, Territorial Sea - Ala Wai Boat Harbor/General/Marine Events/Fireworks",
+        "STATUS": "Approved",
+        "MSI_GROUP": "General",
+        "SUB_CATEGORY": "Marine Events",
+        "TYPE": "Fireworks",
+        "WTRW_UID": 100116385694,
+        "MRN": "urn:mrn:iala:wwy:us:navXII:dis14:sechonexcecozon:sechontersea:alawaiboahar",
+        "WATERWAY_NAME": "Ala Wai Boat Harbor",
+        "CREATE_DATE": 1741719087000,
+        "MODIFIED_DATE": 1773253827000,
+        "BEGIN_DATE": 1741651200000,
+        "END_DATE": 1861747199000,
+        "DESCRIPTION": "FIREWORKS\nHawaii Explosives and Pyrotechnics, Inc. will be conducting a land fireworks display neighboring Duke Kahanamoku Beach on Fridays from 1915 - 2030 January 03, 2026 to December 26, 2026. Please require all vessels to observe the safety/fallout zone radius from the firing site. Vessels and spectators are advised to maintain a distance of at least 210 feet radius from the launch site.  Contact (808) 968-0600 for further information.",
+        "COORDINATES_JSON": "{\"type\":\"Point\",\"coordinates\":[-157.84556,21.28147]}",
+        "COORDINATES_TYPE": "Point",
+        "DECIMAL_LONGITUDE": -157.84556,
+        "DECIMAL_LATITUDE": 21.28147
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 36958,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -86.51498999999995,
+          30.38734000000005
+        ]
+      },
+      "properties": {
+        "ESRI_OID": 36958,
+        "MSI_UID": 36958,
+        "ATU": 8,
+        "TITLE": "Sector Mobile, Submerged Land Act (SLA) - Choctawhatchee Bay/General/Marine Events/Fireworks",
+        "STATUS": "Approved",
+        "MSI_GROUP": "General",
+        "SUB_CATEGORY": "Marine Events",
+        "TYPE": "Fireworks",
+        "WTRW_UID": 100116384679,
+        "MRN": "urn:mrn:iala:wwy:us:navIV:dis8:secmobexcecozon:secmobtersea:secmobsublanact:chobay",
+        "WATERWAY_NAME": "Choctawhatchee Bay",
+        "CREATE_DATE": 1770843603000,
+        "MODIFIED_DATE": 1783705664000,
+        "BEGIN_DATE": 1770768000000,
+        "END_DATE": 1798847999000,
+        "DESCRIPTION": "East Pass Entrance Channel - Fireworks Display --- Regularly scheduled barge-based fireworks displays will take place southwest of the East Pass Entrance Channel near Eglin Beach Park.  A 700 ft fallout radius will exist around the barge located in approximate position 30-23-14.42N 086-30-53.95W.  Fireworks are scheduled to take place for the Harborwalk Village Fireworks 2026 Season on the following dates:  -- July 16, 23 and 30 -- September 6 -- October 3, 10, 17 and 24 -- December 13 and 31 -- Fireworks displays will start at 9:00 p.m., from February through September, and 8:00 p.m., from October through December.  On December 31, 2026, two fireworks displays will take place at 8:00 p.m. and 11:59 p.m.  Mariners are urged to use extreme caution while transiting this area. ",
+        "COORDINATES_JSON": "{\"type\":\"Point\",\"coordinates\":[-86.51499,30.38734]}",
+        "COORDINATES_TYPE": "Point",
+        "DECIMAL_LONGITUDE": -86.51499,
+        "DECIMAL_LATITUDE": 30.38734
+      }
+    }
+  ],
+  "properties": {}
+}

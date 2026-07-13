@@ -16,7 +16,9 @@ from mcp.server.fastmcp import FastMCP
 
 from marine_wx_mcp import formatting, registry
 from marine_wx_mcp.registry import RegistryError
-from marine_wx_mcp.sources import ndbc, nws, openmeteo, usno, windy
+from marine_wx_mcp.sources import coast_pilot, navcen, ndbc, nws, openmeteo, usno, windy
+from marine_wx_mcp.sources.coast_pilot import CoastPilotError
+from marine_wx_mcp.sources.navcen import NavcenError
 from marine_wx_mcp.sources.ndbc import NDBCError
 from marine_wx_mcp.sources.nws import NWSError
 from marine_wx_mcp.sources.openmeteo import OpenMeteoError
@@ -73,21 +75,77 @@ async def marine_get_zone_forecast(
     zone_id: str,
     response_format: ResponseFormat = "markdown",
 ) -> str | dict:
-    """Nearshore forecast (wind/waves/weather by period) for one LMZ zone.
+    """Coastal/Great Lakes forecast (wind/waves/weather by period) for one NWS marine zone.
 
-    Backed by the Nearshore Marine Forecast (NSH) text product, not the
-    NWS zone-forecast JSON endpoint (which 404s for marine zones).
+    Works for any US coastal or Great Lakes marine zone nationwide (e.g.
+    "LMZ646", "ANZ630") - the office is looked up live from NWS zone
+    metadata, not a fixed list. Backed by the Nearshore (Great Lakes) or
+    Coastal Waters (elsewhere) text product, not the NWS zone-forecast
+    JSON endpoint (which 404s for marine zones). For offshore/high-seas
+    zones, use marine_get_offshore_forecast / marine_get_high_seas_forecast
+    instead - those aren't covered by this endpoint.
     """
     try:
-        office = registry.office_for_zone(zone_id)
-        zones = await nws.get_nearshore_forecast(office)
-    except (RegistryError, NWSError) as exc:
+        office = await nws.get_marine_zone_office(zone_id)
+        product_type, zones = await nws.get_marine_zone_forecast(office)
+    except NWSError as exc:
         return str(exc)
 
     zone_data = zones.get(zone_id)
     if response_format == "json":
-        return {"zone_id": zone_id, "office": office, "forecast": zone_data}
+        return {
+            "zone_id": zone_id,
+            "office": office,
+            "product_type": product_type,
+            "forecast": zone_data,
+        }
     return formatting.format_zone_forecast(zone_id, zone_data)
+
+
+@mcp.tool()
+async def marine_get_offshore_forecast(
+    location: str,
+    response_format: ResponseFormat = "markdown",
+) -> str | dict:
+    """Offshore Forecast (OFF) - the ~60nm-to-Gulf Stream/shelf-break tier, beyond coastal zones.
+
+    Issued by the Ocean Prediction Center (or Alaska/Hawaii WFOs), not
+    tied to a UGC marine zone_id - pass an OPC/WFO location code
+    instead (e.g. "N01" for NE US waters). Call with an invalid code to
+    get the full list of valid ones back in the error message, or see
+    nws.OFFSHORE_LOCATIONS.
+    """
+    try:
+        areas = await nws.get_offshore_forecast(location)
+    except NWSError as exc:
+        return str(exc)
+
+    if response_format == "json":
+        return {"location": location, "areas": areas}
+    return formatting.format_offshore_forecast(location, areas)
+
+
+@mcp.tool()
+async def marine_get_high_seas_forecast(
+    area: str,
+    response_format: ResponseFormat = "markdown",
+) -> str | dict:
+    """High Seas Forecast (HSF) - ocean-basin-wide, beyond offshore waters.
+
+    Issued by the Ocean Prediction Center/NHC for whole ocean basins
+    (METAREAs), e.g. "AT1" (Atlantic), "EP1"/"EP2" (Eastern Pacific),
+    "NP" (North Pacific) - see nws.HIGH_SEAS_AREAS for the full list.
+    Returned as full text rather than split by area - these forecasts
+    aren't zone-subdivided the way coastal/offshore ones are.
+    """
+    try:
+        text = await nws.get_high_seas_forecast(area)
+    except NWSError as exc:
+        return str(exc)
+
+    if response_format == "json":
+        return {"area": area, "text": text}
+    return f"## High Seas Forecast - {area}\n\n{text}"
 
 
 @mcp.tool()
@@ -246,6 +304,120 @@ async def marine_get_sun_times(
     if response_format == "json":
         return {"location": label, **result}
     return formatting.format_sun_times(label, result)
+
+
+@mcp.tool()
+async def marine_get_aids_to_navigation(
+    lat: float | None = None,
+    lon: float | None = None,
+    place: str | None = None,
+    radius_nm: float = 10,
+    response_format: ResponseFormat = "markdown",
+) -> str | dict:
+    """Charted aids to navigation (Light List) near a coordinate/place - what should be there.
+
+    Source is NAVCEN's District 09 Light List (covers the whole Great
+    Lakes, bulk-downloaded and cached ~6h, then filtered by radius here).
+    Light ranges are converted from statute miles (the Light List's native
+    unit) to nautical miles. For live "is it actually working" status use
+    marine_get_navigation_discrepancies instead.
+    """
+    try:
+        lat_r, lon_r, label = _resolve_coords(lat, lon, place)
+        lights = await navcen.get_light_list("09")
+    except (RegistryError, NavcenError) as exc:
+        return str(exc)
+
+    nearby = navcen.filter_by_radius(lights, lat_r, lon_r, radius_nm)
+
+    if response_format == "json":
+        return {"location": label, "radius_nm": radius_nm, "aids": nearby}
+    return formatting.format_aids_to_navigation(label, radius_nm, nearby)
+
+
+@mcp.tool()
+async def marine_get_navigation_discrepancies(
+    lat: float | None = None,
+    lon: float | None = None,
+    place: str | None = None,
+    radius_nm: float = 10,
+    response_format: ResponseFormat = "markdown",
+) -> str | dict:
+    """Live discrepancies, hazards, temporary changes, and marine events near a place.
+
+    Answers "is that light actually working" rather than just what's
+    charted - covers federal/private aid discrepancies (outages, damage),
+    temporary changes (e.g. reduced light intensity), hazards to
+    navigation, and marine events (regattas, fireworks). Source layers
+    are nationwide (not district-scoped), bulk-downloaded and cached
+    ~6h, then filtered by radius here.
+    """
+    try:
+        lat_r, lon_r, label = _resolve_coords(lat, lon, place)
+        layers = await navcen.get_discrepancies()
+    except (RegistryError, NavcenError) as exc:
+        return str(exc)
+
+    filtered = {
+        key: navcen.filter_by_radius(items, lat_r, lon_r, radius_nm)
+        for key, items in layers.items()
+    }
+
+    if response_format == "json":
+        return {"location": label, "radius_nm": radius_nm, "layers": filtered}
+    return formatting.format_navigation_discrepancies(label, radius_nm, filtered)
+
+
+@mcp.tool()
+async def marine_search_coast_pilot(
+    query: str,
+    lat: float | None = None,
+    lon: float | None = None,
+    place: str | None = None,
+    radius_nm: float | None = None,
+    volume: int | None = None,
+    limit: int = 10,
+    response_format: ResponseFormat = "markdown",
+) -> str | dict:
+    """Full-text search over the U.S. Coast Pilot (all 10 volumes, nationwide).
+
+    Narrative harbor/facility/regulation information NOAA can't put on a
+    chart - not weather or live conditions. Works anywhere in the US
+    (Atlantic, Gulf, Great Lakes, Pacific, Alaska, Hawaii, Puerto Rico/USVI),
+    not just registry places. `place`/`lat`+`lon` are optional - omit them
+    for a pure nationwide text search; add radius_nm to additionally
+    require a geographic match (drops results with no coordinate signal
+    in the text, which is most paragraphs - prefer a specific query over
+    a tight radius). Requires a one-time local index build first: run
+    `python scripts/ingest_coast_pilot.py`.
+
+    The `harbor_heading` shown on each result is best-effort, not
+    authoritative - it's reliable in harbor-by-harbor chapters but can be
+    wrong in the regulatory front-matter chapters (1-2) of every volume,
+    or briefly thrown off by a mid-chapter regulatory callout (e.g. a
+    protected-species notice). The paragraph `text` itself is always the
+    real, correctly-matched content regardless of the heading label.
+    """
+    lat_r = lon_r = None
+    label = None
+    if place or (lat is not None and lon is not None):
+        try:
+            lat_r, lon_r, label = _resolve_coords(lat, lon, place)
+        except RegistryError as exc:
+            return str(exc)
+    elif radius_nm is not None:
+        return "radius_nm requires place or both lat and lon."
+
+    try:
+        results = coast_pilot.search(
+            query, limit=limit, volume=volume, lat=lat_r, lon=lon_r, radius_nm=radius_nm
+        )
+    except CoastPilotError as exc:
+        return str(exc)
+
+    if response_format == "json":
+        return {"query": query, "location": label, "results": results}
+    return formatting.format_coast_pilot_search(query, results)
 
 
 @mcp.tool()

@@ -82,8 +82,152 @@ All live-verified 2026-07-06. Fixtures captured in `tests/fixtures/`.
   - see the gotcha below. `sundata` only carries civil twilight (no
   nautical/astronomical), confirmed live and matches the tool's
   documented caveat.
+- **V-7 (NAVCEN aids to navigation, added 2026-07-12)**: CONFIRMED both
+  the Light List and the live discrepancy/hazard layers work and need no
+  key. Real field names captured live (differ in places from the initial
+  description - e.g. discrepancy layers use `LLNR`/`ATON_UID` where the
+  Light List uses `LIGHT_LIST_NUMBER`/`AID_UID`; join on the UID field,
+  not the LLNR, if ever cross-referencing the two). Confirmed the
+  statute-mile range unit and the pagination-wraparound gotcha below live
+  - both matched the tip-off given for this build, not assumed. **Also
+  worth recording**: verification was blocked for a while not by
+  anything about the API, but by the dev machine's Surfshark VPN - its
+  DNS resolver failed on `navcen.uscg.gov` and (transiently)
+  `aa.usno.navy.mil` while resolving everything else fine. Disconnecting
+  the VPN fixed it immediately. If a future session hits inexplicable
+  DNS failures on just one or two domains, check for an active VPN
+  before assuming the domain itself is down.
+- **V-8 (Coast Pilot national ingest, added 2026-07-13)**: CONFIRMED no
+  structured API exists - the "xml2html" tool on NOAA's site is a PDF/ZIP
+  download hub despite the name, not HTML/XML rendering. Confirmed all
+  10 volumes' combined-book PDFs (~77MB total), confirmed the geographic
+  coverage of each (see `coast_pilot.VOLUME_COVERAGE`), and confirmed the
+  numbered-paragraph convention and running-header chapter tagging hold
+  identically in two widely separated volumes (Great Lakes/Vol 6 and
+  Eastport ME/Vol 1) before generalizing the parser to all ten - not
+  assumed from one sample. Text extraction quality is uneven: front-matter
+  preface pages come out with spurious mid-word spaces (a kerning
+  artifact), but the harbor-entry body text that actually matters
+  extracts cleanly. User decided (2026-07-13): ingest all 10 volumes in
+  one pass (not staged by sector - the ~77MB total made staging pointless),
+  manual re-ingest on demand (no scheduled auto-refresh). Live full-series
+  ingest run 2026-07-13: 82,639 paragraphs across all 10 volumes, ~40%
+  with an explicit or inherited coordinate. One transient network failure
+  hit volume 5 mid-run on an earlier attempt (silently dropped from the
+  index since every ingest is a full rebuild) - `fetch_volume_pages` now
+  retries 3x with a 5s backoff before giving up, and `main` prints a
+  loud `*** WARNING ***` naming any volume that still failed after
+  retries rather than silently reporting success on a partial index.
+  **Known, accepted limitation**: `harbor_heading` attribution is
+  unreliable in every volume's regulatory front-matter (Chapters 1-2 -
+  confirmed live the top offenders like "Exemptions", "Note", "Current"
+  are exclusively/mostly Ch1-2 content, not harbor names) and can be
+  briefly knocked off by a mid-chapter regulatory callout (confirmed:
+  Eastport's own customs paragraph in Vol 1 Ch 4 got attributed to a
+  preceding "North Atlantic Right Whales" protected-species notice
+  instead). This was investigated across three ingest iterations (fixed
+  two real bugs - heading state leaking across chapter boundaries, and
+  short all-caps PDF-extraction noise like "NNN" passing as a heading -
+  each confirmed live with before/after row counts) before concluding
+  the remainder needs font/layout-aware PDF parsing to fix properly,
+  which plain-text extraction can't give us. **This does not affect
+  search quality** - `marine_search_coast_pilot` matches against
+  paragraph `text`, not `harbor_heading`, and every spot-check (Eastport
+  customs, Kenosha, Waukegan, Honolulu, San Francisco) returned the
+  correct paragraph regardless of a wrong heading label. Don't try to
+  "fix" `harbor_heading` further without a real reason - it's cosmetic on
+  the primary use case.
+- **V-9 (nationwide marine zone/offshore/high-seas forecasts, added
+  2026-07-13)**: CONFIRMED `/zones/marine/{zoneId}` returns the
+  responsible office live for any US coastal/Great Lakes marine zone
+  (`awipsLocationIdentifier`/`cwa`) - this replaced the old hardcoded
+  `registry.office_for_zone`/`zone_offices` table, which is now deleted
+  entirely (`marine_get_zone_forecast` works for any zone nationwide,
+  not just the 6 in the registry - confirmed live against `ANZ630`,
+  Chesapeake Bay, which was never in the registry). Confirmed CWF
+  (Coastal Waters Forecast, everywhere outside the Great Lakes) uses
+  the byte-for-byte identical text format to NSH, so the existing
+  parser needed no changes, just a rename
+  (`parse_nsh_product`→`parse_zone_forecast_product`) and an NSH→CWF
+  fallback. Confirmed live that NSH-issuing offices (exactly 11: APX,
+  BUF, CLE, DLH, DTX, GRB, GRR, IWX, LOT, MKX, MQT) and CWF-issuing
+  offices are mutually exclusive sets, so trying NSH first and falling
+  back to CWF never double-fetches.
+  Confirmed offshore (OFF) and high-seas (HSF) forecasts are a
+  genuinely different tier: issued by national centers under special
+  location codes (e.g. `N01`, `AT1`), not local WFO office codes -
+  and confirmed live that a marine zone's own metadata does NOT
+  reliably resolve to these codes (offshore zone `AMZ040`'s
+  `awipsLocationIdentifier` is `NH2`, which isn't even in OFF's own
+  valid-locations list) - so `marine_get_offshore_forecast`/
+  `marine_get_high_seas_forecast` take the location/area code directly
+  rather than trying to force a `zone_id` parameter that doesn't
+  cleanly exist at this tier. Confirmed OFF has no UGC zone codes or
+  `$$` delimiters at all (bare Title Case name line immediately
+  followed by `.PERIOD...` entries, no terminator) - needed a new
+  parser (`parse_off_product`). HSF is returned as full text, not
+  parsed into sub-areas - confirmed it's an ocean-basin-wide narrative
+  (ALL CAPS, embedded lat/lon polygons, ice/tropical-cyclone caveats)
+  with no zone-style subdivision to parse against.
 
 ## Other gotchas worth knowing before editing sources/
+
+- **Coast Pilot has a real two-level heading structure that isn't
+  obvious from a quick sample.** Standard subsection labels ("Channels",
+  "Wharves", "Small-craft facilities", etc.) recur under every harbor in
+  every volume - confirmed "Channels" alone appears under 100+ different
+  harbors in Chapter 11. `coast_pilot.parse_pages` tracks harbor_heading
+  and subsection_heading separately and only resets/inherits coordinates
+  at the harbor level (`_SUBSECTION_LABEL_PREFIXES`); collapsing these
+  into one flat heading (an earlier version of this code did) loses the
+  harbor attribution for every paragraph after the first subsection
+  marker - verified live this affected roughly 2/3 of all paragraphs in
+  the sample chapter (coordinate coverage went from 33% to 69% after the
+  fix).
+- **Not every Coast Pilot paragraph states its own coordinates** - most
+  harbor-facility paragraphs don't repeat the harbor's position. Inherited
+  coordinates propagate forward only while `harbor_heading` stays the
+  same string, specifically to avoid falsely attributing one harbor's
+  position to the next harbor's "Channels"/"Coast Guard"/etc. paragraphs
+  just because those labels recur.
+- **Coast Pilot ingestion is a one-time bulk job, not a live source
+  client** - unlike every other `sources/` module, `coast_pilot.py` never
+  makes a network request at query time. `scripts/ingest_coast_pilot.py`
+  does the fetching/parsing and writes to
+  `~/.marine_wx_mcp_cache/coast_pilot/coast_pilot.db` (SQLite + FTS5);
+  `marine_search_coast_pilot` only ever reads that file and raises an
+  actionable `CoastPilotError` naming the ingest script if it doesn't
+  exist yet. Every ingest run is a full rebuild - there's no incremental
+  per-volume refresh, so re-running with a subset of volumes silently
+  drops the others (documented in the script's own docstring; don't
+  "fix" this by adding partial-refresh logic without checking whether
+  it's actually wanted first).
+
+- **NAVCEN GeoJSON files paginate via `properties.exceededTransferLimit`,
+  not via HTTP status.** Each `{layer}_{N}.geojson` page is capped at
+  1000 features by the underlying ArcGIS export; confirmed live that
+  requesting a page number past the real last one returns HTTP 200 with
+  a full, valid (but duplicate/wrapped) FeatureCollection rather than a
+  404 or empty result - `navcen._fetch_all_pages` stops based on the
+  flag, never by probing until failure. Don't hardcode a fixed page
+  count even though District 09's Light List happens to be 5 pages
+  today (4697 records) and the discrepancy layers 1-3 pages each.
+- **NAVCEN Light List `LIGHT_NOM_RANGE_UNIT` is "STAT MI"** (statute
+  miles), not nautical miles, unlike every other distance in this
+  server. `navcen.light_range_nm` converts; don't consume
+  `LIGHT_NOM_RANGE` raw.
+- **NAVCEN Light List (`lightListD{district}`) is district-scoped**
+  (District 09 = the whole Great Lakes, not just Lake Michigan) but the
+  **discrepancy/hazard/change/event layers are nationwide** single
+  datasets with no district split - both need client-side radius
+  filtering (`navcen.filter_by_radius`, haversine) since neither
+  supports a server-side geographic query.
+- NAVCEN data is bulk-downloaded and cached to disk at
+  `~/.marine_wx_mcp_cache/navcen/` with a 6h TTL
+  (`navcen.CACHE_TTL_SECONDS`), not fetched live per tool call - the
+  Light List alone is ~9MB across 5 pages. Delete the cache dir to force
+  a refresh sooner; don't reduce the TTL to make testing more convenient
+  without reverting it.
 
 - **USNO `rstt/oneday` `tz` param is the STANDARD (non-DST) UTC offset**,
   and `dst=true` adds the daylight hour on top - passing the already-DST
@@ -109,10 +253,11 @@ All live-verified 2026-07-06. Fixtures captured in `tests/fixtures/`.
   `formatting.mph_string_to_knots` converts it for consistency with the
   rest of the server's knots convention.
 - Every source client exception (`NWSError`, `NDBCError`,
-  `OpenMeteoError`, `RegistryError`) carries an actionable message naming
-  the source and a fallback tool - tool functions in `server.py` catch
-  these and return the message as the tool result rather than crashing.
-  Keep that pattern when adding tools.
+  `OpenMeteoError`, `RegistryError`, `USNOError`, `NavcenError`,
+  `CoastPilotError`) carries an actionable message naming the source and
+  a fallback tool - tool functions in `server.py` catch these and return
+  the message as the tool result rather than crashing. Keep that pattern
+  when adding tools.
 
 ## Package layout
 
@@ -123,13 +268,17 @@ src/marine_wx_mcp/
   registry.json   - ports/zones/stations/routes (Lake Michigan west)
   formatting.py   - markdown rendering + unit conversion helpers
   sources/
-    nws.py        - api.weather.gov (alerts, gridpoints, NSH, AFD)
-    ndbc.py       - NDBC realtime2 fetch + parser
-    openmeteo.py  - Open-Meteo forecast + marine clients
-    usno.py       - aa.usno.navy.mil sun/twilight (rstt/oneday)
-    windy.py      - Windy Point Forecast v2 stub (inert w/o WINDY_API_KEY)
-tests/            - offline unit tests against tests/fixtures/
-scripts/smoke.py  - live one-shot smoke test (network required)
+    nws.py         - api.weather.gov (alerts, gridpoints, NSH/CWF, OFF, HSF, AFD)
+    ndbc.py        - NDBC realtime2 fetch + parser
+    openmeteo.py   - Open-Meteo forecast + marine clients
+    usno.py        - aa.usno.navy.mil sun/twilight (rstt/oneday)
+    navcen.py      - navcen.uscg.gov MSI Light List + discrepancy layers (cached)
+    coast_pilot.py - local SQLite/FTS5 index over all 10 Coast Pilot volumes (no live API)
+    _geo.py        - shared haversine helper (navcen.py, coast_pilot.py)
+    windy.py       - Windy Point Forecast v2 stub (inert w/o WINDY_API_KEY)
+tests/                        - offline unit tests against tests/fixtures/
+scripts/smoke.py              - live one-shot smoke test (network required)
+scripts/ingest_coast_pilot.py - one-time/manual Coast Pilot ingest (network required, ~77MB)
 ```
 
 `marine_wx_mcp.sources` is meant to be importable directly by other
