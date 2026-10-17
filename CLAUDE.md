@@ -1,6 +1,7 @@
 # CLAUDE.md - maintenance brief for marine_wx_mcp
 
-Local stdio MCP server for marine weather data (Lake Michigan v1). Built for
+Local stdio MCP server for marine weather data (Lake Michigan v1; multi-region
+with Antigua & Barbuda since 2026-10-11). Built for
 Kent Clark (Windward Clark LLC) per the design brief in the original build
 request. This file is for future Claude Code sessions maintaining or
 extending it - read it before touching sources/ or registry.json.
@@ -21,15 +22,11 @@ extending it - read it before touching sources/ or registry.json.
 ## Required: NWS User-Agent
 
 Every `api.weather.gov` request must send a `User-Agent` naming the app and
-a real contact email, or requests get rejected/throttled. Currently set in
-`sources/nws.py`:
-
-```python
-USER_AGENT = "marine_wx_mcp/0.1 (robert.kent.clark@gmail.com)"
-```
-
-If the contact email changes, update it there - it's centralized in one
-place by design.
+a way to contact the operator, or requests get rejected/throttled. Built in
+`sources/nws.py` from the `NWS_CONTACT` env var (set to Kent's email in the
+`env` block of his `claude_desktop_config.json`), falling back to the GitHub
+project URL when unset. **Never hardcode a personal email in the repo** - it
+is public, and every clone would send that address to NWS.
 
 ## Verification status (V-items from the build brief)
 
@@ -251,6 +248,124 @@ All live-verified 2026-07-06. Fixtures captured in `tests/fixtures/`.
   (`test_format_route_outlook_shows_zero_percent_ice_not_blank`) since
   this class of bug is easy to reintroduce and easy to miss by eye.
 
+- **V-13 (multi-region / Antigua, added 2026-10-11)**: driven by a live
+  run of every tool against Antigua/Barbuda that surfaced these, each
+  fixed and covered by `tests/test_multiregion.py`:
+  - **Time zones were Chicago everywhere.** Open-Meteo was requested in
+    America/Chicago and returned NAIVE strings that `to_local` then read in
+    the *machine's* zone (right only by coincidence on Kent's PC). Now:
+    Open-Meteo is always requested in GMT and returned as explicit UTC
+    ISO; every region carries an IANA `timezone`; tools display in the
+    resolved place's region zone (ad-hoc coords inherit the nearest region
+    within `registry.REGION_MATCH_NM`, else UTC). Confirmed the bug live:
+    Barbuda sunrise on 2027-01-12 showed as "04:41 AM CST" (= 06:41 AST).
+  - **Wave heights labeled ft were meters.** Confirmed live against the
+    JSON (`hourly_units.wave_height == "m"`); the old markdown printed
+    0.9 "ft" for ~3 ft seas. `openmeteo` now adds `*_ft` companions.
+  - **Combined seas only.** Marine requests now include the
+    `swell_wave_*` / `wind_wave_*` partition (+ `secondary_swell_wave_*`,
+    retried without if rejected - only some wave models produce it) and
+    `cell_selection=sea`. Variable names confirmed from Open-Meteo's docs,
+    not yet from a live response (no network in the build sandbox) -
+    verify after restart.
+  - **NWS outside the US.** `/points` 404s for Antigua and some open-water
+    points return 200 with null gridId (which produced a garbled
+    `/gridpoints/None/None,None` request). `nws.get_point_metadata` now
+    raises `OutsideNWSCoverage` for both; point forecast falls back to
+    Open-Meteo, route outlook skips NWS/NAVCEN for non-US regions
+    (`nws_offices: []`).
+  - **OFF "NT3" returned nothing.** NHC's OFFNT3 (Caribbean + tropical N
+    Atlantic) uses UGC zone blocks ("AMZ051-...$$", CWF layout), unlike
+    OPC's bare-name OFF products, so `parse_off_product` found no areas.
+    `parse_offshore_text` picks the right parser; the tool takes a
+    `zones` filter. AMZ051 = "Offshore Waters Leeward Islands" (Antigua).
+    Layout confirmed against NHC's archived OFFNT3 text; the test fixture
+    is synthetic.
+  - **route_outlook ignored depart_date for tides** (always today) -
+    `coops` functions take `start`. Water level (an observation) is only
+    shown when departing today.
+  - Also: HSF `section` filter ("nhc" keeps only the tropical/Caribbean
+    part of AT1); aids-to-navigation declines outside the Great Lakes
+    (only District 09 is loaded, so "0 aids" in Antigua was misleading);
+    `mcp` pinned `<2` (mcp 2.x renamed FastMCP and breaks server.py on a
+    fresh install).
+  - **New:** `scoring.py` green/yellow/red against per-region
+    `thresholds` in registry.json (marked DRAFT - Kent hasn't set his
+    numbers; he said he'd accept more on the Barbuda passage than Claude
+    first suggested, and far less on Lake Michigan). Route outlook scores
+    each waypoint over the passage window (default sunrise to 1 hr before
+    sunset - the charter "moored an hour before sunset" rule).
+    `marine_get_climatology` (new tool, `climatology.py`) scores the same
+    calendar window across past years from ERA5 (archive-api) + marine
+    history; the marine-history path tries Open-Meteo best-match then the
+    guessed model id `era5_ocean` and reports which answered. **Verified
+    live 2026-10-11 (Antigua channel, 01-09..01-16, 10 yrs):** best_match
+    answers for 2022+ (with swell partition); 2017-2021 fall back to
+    `era5_ocean`, which returns combined seas but NO swell height/direction
+    - so the northerly-swell advisory can only fire in 2022+ years and the
+    advisory-day count is biased low. Same run hit Open-Meteo 429s (all
+    years fired at once); fixed with a 2-year semaphore in climatology.py
+    and 429 retry/backoff in `openmeteo._get`.
+  - **Two fixes from the first full Antigua week briefing (2026-10-11):**
+    (a) route outlook printed the offshore product's first three periods
+    (TODAY/TONIGHT/MON) for every leg regardless of `depart_date` -
+    `formatting.select_periods_for_date` now picks that weekday's day+night
+    periods and says so when the product doesn't reach that far; (b) buoy
+    obs were always rendered in Chicago time (ndbc.LOCAL_TZ) - the tool now
+    looks up the station's region (`registry.region_for_station`, matching
+    region `buoys` or port `stations`) and renders in that zone, UTC if the
+    station isn't in the registry. `ndbc.time_local` is still Chicago and
+    is only a fallback - don't rely on it.
+  - **Thresholds adopted 2026-10-11** (Kent: "yes" to dropping DRAFT). Same
+    numbers as the drafts. His operating rule: guests only in green, yellow
+    is crew-only - so no separate guest threshold set. Cloud cover stays
+    scored (reef-reading in Barbuda). He considered and declined, for now:
+    percentile annotations, a wave-steepness score, and scoring clouds only
+    in a midday approach window - don't build these unasked.
+  - **Scoring is per category, never an overall grade** (changed same day
+    after the first live route run scored 14 kt / 3.5 ft / overcast as RED
+    purely on cloud cover). `scoring.CATEGORIES` groups metrics into Wind
+    (sustained + gusts), Seas (combined + swell) and Clouds; each gets its
+    own color (worst of its members). Route outlook shows each waypoint as
+    "Wind GREEN (14 kt, gusts 18) · Seas GREEN (3.5 ft) · Clouds RED (100%)"
+    and a route line with the worst waypoint per category; climatology counts
+    green/yellow/red days per category. Kent asked for this explicitly - don't
+    reintroduce a rolled-up overall color.
+  - Antigua registry coordinates are approximate anchorage positions for
+    weather lookups (labeled as such in notes) - not for navigation.
+
+- **V-14 (MetService Point Forecast, added 2026-10-11)**: Windy removed
+  entirely (Kent's decision 2026-10-11: Premium has no API access, the
+  ~EUR 990/yr Professional licence excludes ECMWF) and replaced by
+  `sources/metservice.py` + tools `marine_get_metservice_forecast` and
+  `marine_metservice_check`. Key is `METSERVICE_API_KEY`, set in the `env`
+  block of the `marine_wx` entry in `claude_desktop_config.json` - never in
+  the repo. Units = requests x variables x points (times are free), so a
+  forecast call costs ~12 units whatever `hours` is; `x-charge-amount`
+  header is surfaced. **Verified live 2026-10-11**: key check lists 9
+  models (ecmwf.global, ecmwf-long-range, gfs.global, gfs-surface,
+  ww3-ecmwf, ww3-gfs, ww3-gfs long-range + n3d variants); `/models/`
+  costs 0 units, a forecast 12. Auto-selection chose ecmwf.global for
+  atmosphere and ww3-gfs.global for waves. Request/response contract
+  below matched the docs first time.
+  - Great Lakes: NO wave data (all wave vars noData=FILL at Kenosha) -
+    WW3 global doesn't model the lakes. Wind/cloud fine. Keep Open-Meteo/
+    NWS for lake waves.
+  - `wave.*.above-8s` period/direction come back FILL when the >8 s
+    partition is tiny (height present, ~1 ft) - expected, not a bug.
+  - Definitions differ from Open-Meteo: MetService "swell" = energy above
+    8 s period; Open-Meteo `swell_wave_*` is the wave model's own
+    partition and can be 4-5 s. Don't compare the two swell columns 1:1.
+  Original note (pre-verification): Request body, variable names
+  (`wind.speed.at-10m`, `wave.height.above-8s`, ...), the time dimension
+  key (`dimensions.time.data`) and noData handling all come from
+  developer.metservice.com docs; the parser also accepts `values` for the
+  time list defensively. First live run: call `marine_metservice_check`,
+  then `marine_get_metservice_forecast` for Antigua and for a Lake Michigan
+  port (Great Lakes wave coverage unconfirmed - expect `noData` there),
+  and pin anything that differs here. Model selection is left to the API
+  (it picks per variable); `explain: true` is sent and the reply surfaced.
+
 ## Other gotchas worth knowing before editing sources/
 
 - **Coast Pilot has a real two-level heading structure that isn't
@@ -345,9 +460,12 @@ All live-verified 2026-07-06. Fixtures captured in `tests/fixtures/`.
 ```
 src/marine_wx_mcp/
   server.py       - FastMCP init + all @mcp.tool() registrations
-  registry.py     - loader/query helpers for registry.json
-  registry.json   - ports/zones/stations/routes (Lake Michigan west)
+  registry.py     - loader/query helpers for registry.json (multi-region lookup, tz)
+  registry.json   - regions -> tz/offices/offshore/buoys/thresholds/ports/routes
+                    (lake_michigan_west, antigua_barbuda)
   formatting.py   - markdown rendering + unit conversion helpers
+  scoring.py      - green/yellow/red vs region thresholds; merges Open-Meteo rows
+  climatology.py  - past-years analysis of a calendar window (ERA5 + marine history)
   sources/
     nws.py         - api.weather.gov (alerts, gridpoints, NSH/CWF, OFF, HSF, AFD)
     ndbc.py        - NDBC realtime2 fetch + parser
@@ -359,7 +477,7 @@ src/marine_wx_mcp/
     nhc.py         - NHC active tropical cyclones (Atlantic/E&C Pacific only)
     glerl_ice.py   - GLERL daily Great Lakes ice cover by lake (ERDDAP tabledap)
     _geo.py        - shared haversine helper (navcen.py, coast_pilot.py, coops.py, server.py)
-    windy.py       - Windy Point Forecast v2 stub (inert w/o WINDY_API_KEY)
+    metservice.py  - MetService/MetOcean Point Forecast (forecast-v2.metoceanapi.com; needs METSERVICE_API_KEY)
 tests/                        - offline unit tests against tests/fixtures/
 scripts/smoke.py              - live one-shot smoke test (network required)
 scripts/ingest_coast_pilot.py - one-time/manual Coast Pilot ingest (network required, ~77MB)
@@ -372,9 +490,15 @@ of MCP-specific dependencies (that's why `server.py` does all the
 
 ## v2 roadmap (do not build without asking)
 
-1. Windy Point Forecast activation (remember: no ECMWF even when paid).
+1. Provider cascade + cross-source reliability score (MetService, Open-Meteo,
+   GLCFS, freshness-based fallback) - see Kent's 2026-10-11 provider-redesign
+   handoff. Under consideration, not decided. MetService is wired in as a
+   standalone source only; it does not yet feed scoring or route outlook.
 2. GLCFS/GLERL Great Lakes wave/current model access (R-1, not investigated).
-3. `marine_route_outlook(route, depart_time)` - composite go/no-go briefing
-   across alerts + zone forecast + point forecast along a registry route.
-4. Response caching respecting NWS expiry headers; Caribbean region
-   registry (Antigua, Jan 2027); CO-OPS tides/currents.
+3. Response caching respecting NWS expiry headers.
+4. User-editable places: a tool to add/save named places (and thresholds)
+   to a user overlay file outside the package, so new cruising grounds
+   don't need a code change. Discussed with Kent 2026-10-11, not decided.
+
+Done: route outlook (2026-07-13), CO-OPS tides (2026-07-13), Caribbean
+region + go/no-go scoring + climatology (2026-10-11).

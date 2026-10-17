@@ -10,6 +10,9 @@ FIXTURES = Path(__file__).parent / "fixtures" / "openmeteo"
 
 
 class _FakeResponse:
+    status_code = 200
+    headers: dict = {}
+
     def __init__(self, payload: dict):
         self._payload = payload
 
@@ -48,7 +51,8 @@ async def test_get_model_forecast_aligns_models_by_timestamp(monkeypatch):
         42.6, -87.7, models=["ecmwf_ifs025", "gfs_seamless"], hours=6
     )
 
-    assert result["timestamps"][:1] == ["2026-07-06T11:00"]
+    # Requested in GMT since 2026-10-11 and returned as explicit UTC.
+    assert result["timestamps"][:1] == ["2026-07-06T11:00+00:00"]
     assert "wind_speed_10m" in result["models"]["ecmwf_ifs025"]
     assert "wind_speed_10m" in result["models"]["gfs_seamless"]
     assert result["units"]["wind_speed_10m"] == "kn"

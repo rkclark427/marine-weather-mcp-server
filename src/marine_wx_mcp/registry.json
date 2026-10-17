@@ -2,58 +2,337 @@
   "regions": {
     "lake_michigan_west": {
       "timezone": "America/Chicago",
-      "nws_offices": ["MKX", "LOT"],
+      "nws_offices": [
+        "MKX",
+        "LOT"
+      ],
       "ports": {
         "waukegan": {
-          "lat": 42.360,
+          "lat": 42.36,
           "lon": -87.813,
-          "zones": ["LMZ740"],
-          "stations": ["WHRI2", "45186"],
+          "zones": [
+            "LMZ740"
+          ],
+          "stations": [
+            "WHRI2",
+            "45186"
+          ],
           "notes": "Home port. Waukegan Harbor & Marina 847-244-3133. Station 45186 (Waukegan Buoy) replaces 45007, which is not in NDBC's active station list as of 2026-07 - V-2."
         },
         "north_point": {
           "lat": 42.479,
           "lon": -87.803,
-          "zones": ["LMZ646", "LMZ740"],
-          "stations": ["WHRI2", "45187"],
+          "zones": [
+            "LMZ646",
+            "LMZ740"
+          ],
+          "stations": [
+            "WHRI2",
+            "45187"
+          ],
           "notes": "Winthrop Harbor bail-out; boundary Waukegan/Kenosha legs. Station 45187 (Winthrop Harbor Buoy) added - V-2."
         },
         "kenosha": {
           "lat": 42.588,
           "lon": -87.808,
-          "zones": ["LMZ646"],
-          "stations": ["45199"],
+          "zones": [
+            "LMZ646"
+          ],
+          "stations": [
+            "45199"
+          ],
           "notes": "Southport Marina 262-657-5565; office closed Sun/Mon. KNSW3 (Kenosha Light) is registered with NDBC but does not report meteorological data (met=n, no realtime2 feed); 45199 (Salmon Unlimited WI buoy, ~9nm N near Racine) is the nearest reporting station - V-2."
         },
         "racine": {
-          "lat": 42.730,
+          "lat": 42.73,
           "lon": -87.776,
-          "zones": ["LMZ646"],
-          "stations": ["45199", "MLWW3"],
+          "zones": [
+            "LMZ646"
+          ],
+          "stations": [
+            "45199",
+            "MLWW3"
+          ],
           "notes": "Reefpoint Marina 262-633-7171; Wind Point Light just north. 45199 (Salmon Unlimited WI buoy) replaces non-reporting KNSW3 - V-2."
         },
         "milwaukee": {
           "lat": 43.036,
           "lon": -87.895,
-          "zones": ["LMZ645"],
-          "stations": ["MLWW3", "45013"],
+          "zones": [
+            "LMZ645"
+          ],
+          "stations": [
+            "MLWW3",
+            "45013"
+          ],
           "notes": "Lakeshore State Park Marina (no water/showers; elec incl; dockmaster 414-274-4281) / McKinley Marina (full service, fuel). 45013 (Atwater Park buoy) replaces 45007, which is not in NDBC's active station list as of 2026-07 - V-2."
         },
         "chicago": {
           "lat": 41.886,
           "lon": -87.612,
-          "zones": ["LMZ741"],
-          "stations": ["CNII2", "CHII2"],
+          "zones": [
+            "LMZ741"
+          ],
+          "stations": [
+            "CNII2",
+            "CHII2"
+          ],
           "notes": "DuSable Harbor, transient via Dockwa. CNII2 (Northerly Isle, ~2nm) and CHII2 (Harrison-Dever Crib) both confirmed reporting - V-2. NDBC station IDs are case-sensitive in the realtime2 URL; must be uppercase."
         }
       },
       "routes": {
-        "waukegan_kenosha": {"legs": ["waukegan", "north_point", "kenosha"], "nm": 12},
-        "kenosha_racine": {"legs": ["kenosha", "racine"], "nm": 9},
-        "racine_waukegan": {"legs": ["racine", "kenosha", "north_point", "waukegan"], "nm": 21},
-        "kenosha_milwaukee": {"legs": ["kenosha", "racine", "milwaukee"], "nm": 30},
-        "milwaukee_waukegan": {"legs": ["milwaukee", "racine", "kenosha", "north_point", "waukegan"], "nm": 40},
-        "waukegan_chicago": {"legs": ["waukegan", "chicago"], "nm": 33}
+        "waukegan_kenosha": {
+          "legs": [
+            "waukegan",
+            "north_point",
+            "kenosha"
+          ],
+          "nm": 12
+        },
+        "kenosha_racine": {
+          "legs": [
+            "kenosha",
+            "racine"
+          ],
+          "nm": 9
+        },
+        "racine_waukegan": {
+          "legs": [
+            "racine",
+            "kenosha",
+            "north_point",
+            "waukegan"
+          ],
+          "nm": 21
+        },
+        "kenosha_milwaukee": {
+          "legs": [
+            "kenosha",
+            "racine",
+            "milwaukee"
+          ],
+          "nm": 30
+        },
+        "milwaukee_waukegan": {
+          "legs": [
+            "milwaukee",
+            "racine",
+            "kenosha",
+            "north_point",
+            "waukegan"
+          ],
+          "nm": 40
+        },
+        "waukegan_chicago": {
+          "legs": [
+            "waukegan",
+            "chicago"
+          ],
+          "nm": 33
+        }
+      },
+      "afd_office": "MKX",
+      "buoys": [
+        "45186",
+        "45187",
+        "45199",
+        "45013"
+      ],
+      "thresholds": {
+        "status": "Kent's limits (adopted 2026-10-11). Guests only in green; yellow is crew-only.",
+        "notes": "Lake Michigan builds short, steep wind waves fast; limits are much lower than open-ocean ones for the same wave height.",
+        "metrics": {
+          "wind_kt": {
+            "yellow": 15,
+            "red": 22
+          },
+          "gust_kt": {
+            "yellow": 22,
+            "red": 28
+          },
+          "wave_height_ft": {
+            "yellow": 3,
+            "red": 5
+          }
+        }
+      }
+    },
+    "antigua_barbuda": {
+      "timezone": "America/Antigua",
+      "nws_offices": [],
+      "afd_office": "SJU",
+      "offshore": {
+        "location": "NT3",
+        "zones": [
+          "AMZ051"
+        ],
+        "notes": "NHC Offshore Waters Forecast (OFFNT3). AMZ051 = Offshore Waters Leeward Islands. No NWS coastal (CWF) zones or NWS point/gridpoint coverage exist here - forecasts come from Open-Meteo."
+      },
+      "buoys": [
+        "42060",
+        "41043"
+      ],
+      "buoy_notes": "42060 (Caribbean Valley, ~100nm WSW of Antigua) and 41043 (NE of Puerto Rico) both confirmed reporting 2026-10-11. Neither is upwind of Antigua; treat as regional context, not local truth.",
+      "ports": {
+        "english_harbour": {
+          "lat": 17.005,
+          "lon": -61.765,
+          "zones": [],
+          "stations": [
+            "42060"
+          ],
+          "notes": "Moorings base (charter start/end). Approximate position for weather lookups only - not for navigation."
+        },
+        "falmouth_harbour": {
+          "lat": 17.015,
+          "lon": -61.78,
+          "zones": [],
+          "stations": [
+            "42060"
+          ],
+          "notes": "Adjacent to English Harbour. Approximate position."
+        },
+        "jolly_harbour": {
+          "lat": 17.075,
+          "lon": -61.9,
+          "zones": [],
+          "stations": [
+            "42060"
+          ],
+          "notes": "West coast marina/anchorage. Approximate position."
+        },
+        "deep_bay": {
+          "lat": 17.125,
+          "lon": -61.887,
+          "zones": [],
+          "stations": [
+            "42060"
+          ],
+          "notes": "West coast; Andes wreck, Fort Barrington. Approximate position."
+        },
+        "dickenson_bay": {
+          "lat": 17.163,
+          "lon": -61.847,
+          "zones": [],
+          "stations": [
+            "42060"
+          ],
+          "notes": "NW coast. Approximate position."
+        },
+        "great_bird_island": {
+          "lat": 17.143,
+          "lon": -61.743,
+          "zones": [],
+          "stations": [
+            "42060",
+            "41043"
+          ],
+          "notes": "North Sound staging point for Barbuda. Moorings/Sunsail list North Sound to Nonsuch Bay (NE coast) as reef-restricted - confirm at briefing. Approximate position."
+        },
+        "green_island": {
+          "lat": 17.067,
+          "lon": -61.672,
+          "zones": [],
+          "stations": [
+            "42060"
+          ],
+          "notes": "Nonsuch Bay / Green Island, east coast; reef entrance needs good light. Approximate position."
+        },
+        "antigua_barbuda_channel": {
+          "lat": 17.4,
+          "lon": -61.8,
+          "zones": [],
+          "stations": [
+            "42060",
+            "41043"
+          ],
+          "notes": "Mid-channel reference point for the open-water crossing. Not an anchorage."
+        },
+        "barbuda_low_bay": {
+          "lat": 17.642,
+          "lon": -61.858,
+          "zones": [],
+          "stations": [
+            "41043",
+            "42060"
+          ],
+          "notes": "West coast, Codrington Lagoon/frigate birds. Exposed to N/W swell. No nav aids; charts unreliable. Approximate position."
+        },
+        "barbuda_cocoa_point": {
+          "lat": 17.55,
+          "lon": -61.767,
+          "zones": [],
+          "stations": [
+            "42060"
+          ],
+          "notes": "SW Barbuda; better shelter from N swell than Low Bay. Approximate position."
+        }
+      },
+      "routes": {
+        "english_harbour_jolly_harbour": {
+          "legs": [
+            "english_harbour",
+            "jolly_harbour"
+          ]
+        },
+        "deep_bay_great_bird_island": {
+          "legs": [
+            "deep_bay",
+            "dickenson_bay",
+            "great_bird_island"
+          ]
+        },
+        "great_bird_island_barbuda": {
+          "legs": [
+            "great_bird_island",
+            "antigua_barbuda_channel",
+            "barbuda_low_bay"
+          ]
+        },
+        "barbuda_green_island": {
+          "legs": [
+            "barbuda_cocoa_point",
+            "antigua_barbuda_channel",
+            "green_island"
+          ]
+        },
+        "green_island_english_harbour": {
+          "legs": [
+            "green_island",
+            "english_harbour"
+          ]
+        }
+      },
+      "thresholds": {
+        "status": "Kent's limits (adopted 2026-10-11). Guests only in green; yellow is crew-only. Cloud cover matters here for reading reef depth.",
+        "notes": "Open-ocean trade-wind sailing on a 42ft monohull, two experienced crew.",
+        "metrics": {
+          "wind_kt": {
+            "yellow": 20,
+            "red": 27
+          },
+          "gust_kt": {
+            "yellow": 28,
+            "red": 35
+          },
+          "wave_height_ft": {
+            "yellow": 8,
+            "red": 12
+          },
+          "cloud_cover_pct": {
+            "yellow": 60,
+            "red": 90
+          }
+        },
+        "advisories": [
+          {
+            "metric": "swell_direction_deg",
+            "from_deg": 300,
+            "to_deg": 30,
+            "min_swell_ft": 3,
+            "message": "Northerly swell - Barbuda west-coast anchorages (Low Bay) may be uncomfortable or untenable; Cocoa Point/Gravenor Bay are better sheltered; dinghy landings may surf."
+          }
+        ]
       }
     }
   }

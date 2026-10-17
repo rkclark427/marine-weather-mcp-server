@@ -85,10 +85,43 @@ async def main() -> None:
         "marine_route_outlook (waukegan -> north_point -> kenosha)",
         server.marine_route_outlook(["waukegan", "north_point", "kenosha"]),
     )
+    # --- Antigua / non-US region (added 2026-10-11) ---
+    await _run(
+        "marine_get_offshore_forecast (NT3, zone AMZ051 Leeward Islands)",
+        server.marine_get_offshore_forecast("NT3", zones=["AMZ051"]),
+    )
+    await _run(
+        "marine_get_high_seas_forecast (AT1, NHC section only)",
+        server.marine_get_high_seas_forecast("AT1", section="nhc"),
+    )
+    await _run(
+        "marine_get_model_forecast (antigua_barbuda_channel - swell split, AST times)",
+        server.marine_get_model_forecast(place="antigua_barbuda_channel", hours=12, step_hours=3),
+    )
+    await _run(
+        "marine_get_point_forecast (english_harbour - should fall back to Open-Meteo)",
+        server.marine_get_point_forecast(place="english_harbour", hours=6),
+    )
+    await _run(
+        "marine_get_sun_times (barbuda_low_bay, 2027-01-12 - expect ~06:41/17:51 AST)",
+        server.marine_get_sun_times(place="barbuda_low_bay", date="2027-01-12"),
+    )
+    await _run(
+        "marine_route_outlook (great_bird_island -> channel -> barbuda_low_bay)",
+        server.marine_route_outlook(["great_bird_island", "antigua_barbuda_channel", "barbuda_low_bay"]),
+    )
+    await _run(
+        "marine_get_climatology (channel, 01-09..01-16, 3 years)",
+        server.marine_get_climatology("01-09", "01-16", place="antigua_barbuda_channel", years=3),
+    )
     await _run("marine_list_registry", server.marine_list_registry())
     await _run(
-        "marine_get_windy_forecast (no key -> should be a message, not a crash)",
-        server.marine_get_windy_forecast(42.6, -87.7),
+        "marine_metservice_check (no key -> should be a message, not a crash)",
+        server.marine_metservice_check(),
+    )
+    await _run(
+        "marine_get_metservice_forecast (antigua_barbuda_channel, 24h @3h)",
+        server.marine_get_metservice_forecast(place="antigua_barbuda_channel", hours=24, step_hours=3),
     )
     print("\nSmoke test complete.")
 

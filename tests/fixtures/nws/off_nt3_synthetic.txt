@@ -1,0 +1,39 @@
+000
+FZNT23 KNHC 110847
+OFFNT3
+
+Offshore Waters Forecast for the SW and Tropical N Atlantic and Caribbean Sea
+NWS National Hurricane Center Miami FL
+447 AM EDT Sun Oct 11 2026
+
+Offshore Waters Forecast for the Tropical N Atlantic from 07N to
+22N between 55W and 64W, the SW N Atlantic S of 31N W of 65W
+including Bahamas, and the Caribbean Sea
+
+AMZ001-111530-
+Synopsis for Caribbean Sea and Tropical N Atlantic from 07N to 19N between 55W and 64W-
+447 AM EDT Sun Oct 11 2026
+
+.SYNOPSIS...High pressure north of the area will maintain moderate
+to fresh trade winds across the eastern Caribbean through midweek.
+
+$$
+
+AMZ051-111530-
+Offshore Waters Leeward Islands-
+447 AM EDT Sun Oct 11 2026
+
+.TODAY...E winds 15 to 20 kt. Seas 5 to 7 ft. Scattered showers.
+.TONIGHT...E winds 15 to 20 kt. Seas 5 to 7 ft.
+.MON...E to SE winds 10 to 15 kt. Seas 4 to 6 ft.
+
+$$
+
+AMZ052-111530-
+Tropical N Atlantic from 15N to 19N between 55W and 60W-
+447 AM EDT Sun Oct 11 2026
+
+.TODAY...NE to E winds 15 to 20 kt. Seas 6 to 8 ft in NE swell.
+.TONIGHT...E winds 15 to 20 kt. Seas 6 to 8 ft.
+
+$$

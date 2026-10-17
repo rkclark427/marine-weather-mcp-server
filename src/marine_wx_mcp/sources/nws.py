@@ -48,13 +48,19 @@ Gotchas discovered generalizing marine zone forecasts nationwide
 
 from __future__ import annotations
 
+import os
 import re
 from typing import Any
 
 import httpx
 
 BASE_URL = "https://api.weather.gov"
-USER_AGENT = "marine_wx_mcp/0.1 (robert.kent.clark@gmail.com)"
+# NWS asks for a User-Agent naming the app plus a way to reach its operator.
+# Set NWS_CONTACT (an email address) in the marine_wx env block of
+# claude_desktop_config.json; without it the project URL is sent instead, so
+# nobody else's install ever reports the author's address.
+DEFAULT_CONTACT = "https://github.com/rkclark427/marine-weather-mcp-server"
+USER_AGENT = f"marine_wx_mcp/0.1 ({os.environ.get('NWS_CONTACT') or DEFAULT_CONTACT})"
 
 
 class NWSError(Exception):
@@ -124,10 +130,39 @@ async def get_marine_zone_office(zone_id: str) -> str:
     return office
 
 
+class OutsideNWSCoverage(NWSError):
+    """The coordinate has no NWS gridpoint (outside US forecast coverage).
+
+    Callers should fall back to Open-Meteo rather than surfacing this as a
+    failure - it's the expected answer for e.g. Antigua, not an outage.
+    """
+
+
 async def get_point_metadata(lat: float, lon: float) -> dict[str, Any]:
-    """Grid metadata for a coordinate: gridId/gridX/gridY, land forecastZone, city."""
-    data = await _get(f"/points/{lat},{lon}")
-    return data["properties"]
+    """Grid metadata for a coordinate: gridId/gridX/gridY, land forecastZone, city.
+
+    Raises OutsideNWSCoverage when the point has no NWS grid - confirmed live
+    2026-10-11 two ways: /points 404s ("Unable to provide data for requested
+    point") for Antigua, and some open-water points return 200 with null
+    gridId/gridX/gridY, which previously produced a garbled
+    /gridpoints/None/None,None request downstream.
+    """
+    try:
+        data = await _get(f"/points/{lat},{lon}")
+    except NWSError as exc:
+        if "404" in str(exc):
+            raise OutsideNWSCoverage(
+                f"No NWS gridpoint forecast for {lat},{lon} (outside NWS coverage). "
+                "Use marine_get_model_forecast (Open-Meteo) instead."
+            ) from exc
+        raise
+    props = data["properties"]
+    if not props.get("gridId") or props.get("gridX") is None or props.get("gridY") is None:
+        raise OutsideNWSCoverage(
+            f"No NWS gridpoint forecast for {lat},{lon} (point has no forecast grid). "
+            "Use marine_get_model_forecast (Open-Meteo) instead."
+        )
+    return props
 
 
 async def get_gridpoint(office: str, grid_x: int, grid_y: int) -> dict[str, Any]:
@@ -289,7 +324,46 @@ async def get_offshore_forecast(location: str) -> dict[str, dict[str, Any]]:
             f"locations: {', '.join(OFFSHORE_LOCATIONS)}."
         )
     text = await _product_text(product_id)
+    return parse_offshore_text(text)
+
+
+def parse_offshore_text(text: str) -> dict[str, dict[str, Any]]:
+    """Parse either offshore product style.
+
+    OPC offshore products (N01 etc.) use bare Title Case area headers with no
+    UGC codes (parse_off_product). NHC's Caribbean/tropical Atlantic product
+    (location NT3, AWIPS OFFNT3) instead uses UGC zone blocks ("AMZ051-...$$")
+    in the same layout as CWF - confirmed 2026-10-11 against NHC's archived
+    OFFNT3 text; the OPC-only parser returned {} for it, which is why NT3
+    came back "No offshore forecast areas found". Areas from the UGC style
+    are keyed "AMZ051 - Offshore Waters Leeward Islands".
+    """
+    if _ZONE_BLOCK_RE.search(text) and "$$" in text:
+        zones = parse_zone_forecast_product(text)
+        if zones:
+            return {
+                f"{zone_id} - {z['area']}" if z["area"] else zone_id: {
+                    "periods": z["periods"],
+                    "zone_id": zone_id,
+                    "issued": z["issued"],
+                }
+                for zone_id, z in zones.items()
+            }
     return parse_off_product(text)
+
+
+def filter_offshore_areas(
+    areas: dict[str, dict[str, Any]], zones: list[str] | None
+) -> dict[str, dict[str, Any]]:
+    """Keep only areas whose zone_id (or name) matches one of `zones`."""
+    if not zones:
+        return areas
+    wanted = {z.upper() for z in zones}
+    return {
+        name: a
+        for name, a in areas.items()
+        if (a.get("zone_id") or "").upper() in wanted or name.upper() in wanted
+    }
 
 
 async def get_high_seas_forecast(area: str) -> str:
@@ -306,3 +380,26 @@ async def get_high_seas_forecast(area: str) -> str:
             f"{', '.join(HIGH_SEAS_AREAS)}."
         )
     return await _product_text(product_id)
+
+
+_NHC_HSF_MARKER = "NATIONAL HURRICANE CENTER"
+
+
+def split_high_seas_text(text: str, section: str = "all") -> str:
+    """Trim an HSF product to one issuing center's section.
+
+    AT1 carries two sections in one product: OPC's North Atlantic (north of
+    31N) and NHC's tropical Atlantic/Caribbean (07N-31N). For a Caribbean
+    passage only the NHC section matters. `section` is "all", "opc" or "nhc";
+    if the marker isn't found the full text is returned unchanged.
+    """
+    if section == "all":
+        return text
+    idx = text.find(_NHC_HSF_MARKER)
+    if idx == -1:
+        return text
+    # Back up to the start of the line containing the marker.
+    line_start = text.rfind("\n", 0, idx) + 1
+    if section == "nhc":
+        return text[line_start:]
+    return text[:line_start]

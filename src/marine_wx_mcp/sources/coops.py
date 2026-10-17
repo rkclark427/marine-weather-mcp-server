@@ -110,14 +110,23 @@ def find_nearest_station(
     return {**best, "_distance_nm": round(distance, 1)}
 
 
-def _date_range(days: int) -> tuple[str, str]:
-    today = date.today()
-    return today.strftime("%Y%m%d"), (today + timedelta(days=days)).strftime("%Y%m%d")
+def _date_range(days: int, start: date | None = None) -> tuple[str, str]:
+    """(begin, end) YYYYMMDD strings. `start` defaults to today - pass a future
+    date for passage planning (route_outlook's depart_date); before 2026-10-11
+    this always used today, so a route outlook for next Tuesday silently showed
+    today's tides."""
+    first = start or date.today()
+    return first.strftime("%Y%m%d"), (first + timedelta(days=days)).strftime("%Y%m%d")
 
 
-async def get_tide_predictions(station_id: str, days: int = 2) -> list[dict[str, Any]]:
-    """High/low tide predictions for a tidal station. Raises CoopsError for Great Lakes stations."""
-    begin, end = _date_range(days)
+async def get_tide_predictions(
+    station_id: str, days: int = 2, start: date | None = None
+) -> list[dict[str, Any]]:
+    """High/low tide predictions for a tidal station. Raises CoopsError for Great Lakes stations.
+
+    Times are station-local (time_zone=lst_ldt), as plain "YYYY-MM-DD HH:MM" strings.
+    """
+    begin, end = _date_range(days, start)
     data = await _get_json(
         DATAGETTER_URL,
         params={
@@ -153,9 +162,11 @@ async def get_water_level(station_id: str, greatlakes: bool) -> dict[str, Any] |
     return readings[0] if readings else None
 
 
-async def get_current_predictions(station_id: str, days: int = 1) -> list[dict[str, Any]]:
+async def get_current_predictions(
+    station_id: str, days: int = 1, start: date | None = None
+) -> list[dict[str, Any]]:
     """Ebb/flood/slack current predictions for a current station."""
-    begin, end = _date_range(days)
+    begin, end = _date_range(days, start)
     data = await _get_json(
         DATAGETTER_URL,
         params={
