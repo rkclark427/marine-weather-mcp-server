@@ -90,6 +90,23 @@ then fully quit and reopen Claude. Without it, `marine_get_metservice_forecast`
 and `marine_metservice_check` just return a "not configured" message - they
 never crash tool registration. Keep the key out of the repo.
 
+## Companion skill: passage briefings
+
+`skills/marine-passage-briefing/SKILL.md` tells the agent *how* to use these
+tools for a passage: which tools to call by lead time, how to cross-check
+sources, and how to report go/no-go per category (never one overall grade).
+It uses the open Agent Skills `SKILL.md` format.
+
+- Claude Code: copy the folder to `~/.claude/skills/` (all projects) or
+  `.claude/skills/` (one project).
+- Claude apps: zip the `marine-passage-briefing` folder and upload it as a
+  custom skill in Settings.
+- Other agents that read `SKILL.md` skills: see that agent's docs for its
+  skills directory.
+
+The skill only changes how the agent works; the MCP server above must still
+be installed and registered.
+
 ## Regions, time zones and go/no-go thresholds
 
 Each region in `registry.json` carries its own `timezone` (all output is
